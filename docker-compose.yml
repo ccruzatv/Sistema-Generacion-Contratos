@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: smcapp-backend
+    env_file: ./backend/.env
+    environment:
+      - TEMPLATES_DIR=/data/templates
+      - GENERATED_DIR=/data/generated
+    volumes:
+      - smcapp_generated:/data/generated
+      - smcapp_templates:/data/templates
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  frontend:
+    build: ./frontend
+    container_name: smcapp-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  smcapp_generated:
+  smcapp_templates:
