@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.db
+backend/generated/
+backend/templates/*.docx
+!backend/templates/ejemplo_contrato.docx
+!backend/templates/base_tecnica_licitacion.docx
+!backend/templates/resolucion_adjudicacion.docx
+node_modules/
+dist/
+.vite/

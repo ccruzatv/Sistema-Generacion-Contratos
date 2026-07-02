@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" fill="#1a2d56">
+  <!-- Roof / Pediment -->
+  <polygon points="100,5 25,52 175,52"/>
+  <!-- Top beam -->
+  <rect x="25" y="52" width="150" height="8"/>
+  <!-- Left outer pillar -->
+  <rect x="38" y="60" width="10" height="72"/>
+  <!-- Right outer pillar -->
+  <rect x="152" y="60" width="10" height="72"/>
+  <!-- Left figure (caryatid) -->
+  <ellipse cx="75" cy="73" rx="7" ry="8"/>
+  <path d="M68,81 L68,130 Q68,133 71,133 L79,133 Q82,133 82,130 L82,81 Q82,78 75,78 Q68,78 68,81Z"/>
+  <!-- Right figure (caryatid) -->
+  <ellipse cx="125" cy="73" rx="7" ry="8"/>
+  <path d="M118,81 L118,130 Q118,133 121,133 L129,133 Q132,133 132,130 L132,81 Q132,78 125,78 Q118,78 118,81Z"/>
+  <!-- Bottom beam -->
+  <rect x="25" y="132" width="150" height="8"/>
+  <!-- Base platform -->
+  <rect x="18" y="140" width="164" height="8"/>
+  <!-- Sub-base -->
+  <rect x="12" y="148" width="176" height="6" rx="1"/>
+</svg>
