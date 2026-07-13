@@ -227,6 +227,13 @@ export default function Repository() {
     return counts;
   }, [documents, submissions]);
 
+  function getSubmissionHistory(docId) {
+    return submissions
+      .filter((s) => s.document_id === docId)
+      .slice()
+      .sort((a, b) => new Date(a.submitted_at) - new Date(b.submitted_at));
+  }
+
   function renderDocRow(doc) {
     const sub = getSubmissionStatus(doc.id);
     const isOp = user?.role === "operativo";
@@ -236,9 +243,10 @@ export default function Repository() {
     const showEdit = !isApproved && (isRejected || !sub);
     const isExpanded = expandedEventId === doc.id;
     const events = eventsCache[doc.id] || [];
+    const history = getSubmissionHistory(doc.id);
 
     return (
-      <tr key={doc.id} className="border-t border-[#1a2d56]/5 hover:bg-[#1a2d56]/[0.02]">
+      <tr key={doc.id} className="border-t border-[#1a2d56]/5 hover:bg-[#1a2d56]/[0.02] align-top">
         <td className="py-3 px-4">
           <div className="font-medium text-[#1a2d56] text-sm">{doc.document_name}</div>
           {doc.template_name && (
@@ -318,6 +326,43 @@ export default function Repository() {
               </span>
             )}
           </button>
+          {isExpanded && history.length > 0 && (
+            <div className="mt-2 space-y-1.5">
+              {history.map((s) => (
+                <div key={s.id} className="flex items-start gap-2 bg-[#1a2d56]/[0.02] border border-[#1a2d56]/8 rounded-lg px-2.5 py-2">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 flex-shrink-0">
+                    Envío #{s.submission_number}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                        s.status === "aprobado" ? "bg-green-100 text-green-700" :
+                        s.status === "rechazado" ? "bg-red-100 text-red-600" :
+                        "bg-yellow-100 text-yellow-700"
+                      }`}>
+                        {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
+                      </span>
+                      <span className="text-[10px] text-[#1a2d56]/30">
+                        {new Date(s.submitted_at).toLocaleDateString("es-CL", {
+                          day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    {s.submitter_comment && (
+                      <p className="text-[10px] text-[#1a2d56]/60 mt-1">
+                        <span className="font-semibold">Mi comentario:</span> {s.submitter_comment}
+                      </p>
+                    )}
+                    {s.comment && (
+                      <p className="text-[10px] text-red-700 mt-0.5">
+                        <span className="font-semibold">Observación del revisor:</span> {s.comment}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {isExpanded && (
             <div className="mt-2 ml-1 border-l-2 border-[#c8a84e]/40 pl-3 space-y-2 py-1">
               {events.length === 0 ? (
@@ -552,7 +597,7 @@ export default function Repository() {
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-32">Categoría</th>
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-32">Jurisdicción</th>
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-36">Fecha</th>
-                <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-44">Estado / Trazabilidad</th>
+                <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-96">Estado / Trazabilidad</th>
                 <th className="py-3.5 px-4 text-right text-[11px] font-semibold text-white/90 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>

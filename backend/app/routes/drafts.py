@@ -34,6 +34,18 @@ def _resolve_template_path(stored: str) -> str:
     return os.path.join(_TEMPLATES_DIR, stored)
 
 
+def _submission_number(db: Session, submission: DraftSubmission) -> int:
+    """1-indexed position of this submission among all submission cycles for its document."""
+    return (
+        db.query(DraftSubmission)
+        .filter(
+            DraftSubmission.document_id == submission.document_id,
+            DraftSubmission.submitted_at <= submission.submitted_at,
+        )
+        .count()
+    )
+
+
 class SubmitDraftRequest(BaseModel):
     document_id: int
     comment: str = ""
@@ -59,14 +71,19 @@ def submit_draft(
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-    existing = (
+    existing_approved = (
         db.query(DraftSubmission)
-        .filter(DraftSubmission.document_id == doc.id)
+        .filter(DraftSubmission.document_id == doc.id, DraftSubmission.status == "aprobado")
         .first()
     )
-    if existing and existing.status == "aprobado":
+    if existing_approved:
         raise HTTPException(status_code=400, detail="Este documento ya fue aprobado y no puede enviarse nuevamente")
-    if existing and existing.status == "pendiente":
+    existing_pending = (
+        db.query(DraftSubmission)
+        .filter(DraftSubmission.document_id == doc.id, DraftSubmission.status == "pendiente")
+        .first()
+    )
+    if existing_pending:
         raise HTTPException(status_code=400, detail="Este documento ya tiene un envío pendiente de revisión")
 
     submitter_comment = (request.comment or "").strip()
@@ -133,6 +150,7 @@ def my_submissions(
             "submitter_comment": s.submitter_comment or "",
             "submitted_at": s.submitted_at.isoformat(),
             "reviewed_at": s.reviewed_at.isoformat() if s.reviewed_at else None,
+            "submission_number": _submission_number(db, s),
         }
         for s in submissions
     ]
@@ -143,7 +161,10 @@ def pending_reviews(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    """Admin: get draft submissions filtered by jurisdiction (superadmin sees all)."""
+    """Admin: get the current submission cycle of each document, filtered by
+    jurisdiction (superadmin sees all). Older, already-corrected rejection
+    cycles are historical and are not mixed into this list — see
+    /repository/{doc_id}/events or /drafts/my-submissions for the full history."""
     query = db.query(DraftSubmission)
 
     # Non-superadmin admins only see submissions from users in their jurisdiction
@@ -152,7 +173,14 @@ def pending_reviews(
             User.jurisdiccion == admin.jurisdiccion
         )
 
-    submissions = query.order_by(DraftSubmission.submitted_at.desc()).all()
+    all_submissions = query.order_by(DraftSubmission.submitted_at.asc()).all()
+
+    # Keep only the latest submission cycle per document.
+    latest_by_doc = {}
+    for s in all_submissions:
+        latest_by_doc[s.document_id] = s
+    submissions = sorted(latest_by_doc.values(), key=lambda s: s.submitted_at, reverse=True)
+
     results = []
     for s in submissions:
         field_values = {}
@@ -177,6 +205,7 @@ def pending_reviews(
             "submitted_at": s.submitted_at.isoformat(),
             "reviewed_at": s.reviewed_at.isoformat() if s.reviewed_at else None,
             "reviewer_name": s.reviewer.name if s.reviewer else None,
+            "submission_number": _submission_number(db, s),
         })
     return results
 
@@ -369,12 +398,13 @@ async def resubmit_corrected(
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-    submission = (
+    rejected_submission = (
         db.query(DraftSubmission)
         .filter(DraftSubmission.document_id == doc.id, DraftSubmission.status == "rechazado")
+        .order_by(DraftSubmission.submitted_at.desc())
         .first()
     )
-    if not submission:
+    if not rejected_submission:
         raise HTTPException(status_code=400, detail="Este documento no tiene un rechazo pendiente de corrección")
 
     if not file.filename.endswith(".docx"):
@@ -390,13 +420,21 @@ async def resubmit_corrected(
         os.remove(pdf_path)
 
     submitter_comment = (comment or "").strip()
-    submission.status = "pendiente"
-    submission.comment = ""
-    submission.submitter_comment = submitter_comment
-    submission.reviewed_by = None
-    submission.reviewed_at = None
+    # A new submission cycle is created (rather than reusing the rejected one)
+    # so the rejection's comment and reviewer stay intact as history.
+    db.add(DraftSubmission(
+        document_id=doc.id,
+        submitted_by=user.id,
+        status="pendiente",
+        submitter_comment=submitter_comment,
+    ))
 
-    event_detail = "Documento corregido y reenviado para validación"
+    correction_count = (
+        db.query(DocumentEvent)
+        .filter(DocumentEvent.document_id == doc.id, DocumentEvent.action == "corregido")
+        .count()
+    ) + 1
+    event_detail = f"Corrección #{correction_count}: documento corregido y reenviado para validación"
     if submitter_comment:
         event_detail += f". Comentario del solicitante: {submitter_comment}"
     event = DocumentEvent(

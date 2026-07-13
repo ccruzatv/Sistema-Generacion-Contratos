@@ -99,8 +99,18 @@ class UserDocument(Base):
     created_at = Column(DateTime, default=lambda: _now_chile())
 
     user = relationship("User", back_populates="documents")
-    draft_submission = relationship("DraftSubmission", back_populates="document", uselist=False, cascade="all, delete-orphan")
+    draft_submissions = relationship(
+        "DraftSubmission",
+        back_populates="document",
+        cascade="all, delete-orphan",
+        order_by="DraftSubmission.submitted_at",
+    )
     events = relationship("DocumentEvent", back_populates="document", cascade="all, delete-orphan", order_by="DocumentEvent.created_at")
+
+    @property
+    def latest_submission(self):
+        """Most recent submission cycle (each correction creates a new one)."""
+        return self.draft_submissions[-1] if self.draft_submissions else None
 
 
 class DraftSubmission(Base):
@@ -116,7 +126,7 @@ class DraftSubmission(Base):
     submitted_at = Column(DateTime, default=lambda: _now_chile())
     reviewed_at = Column(DateTime, nullable=True)
 
-    document = relationship("UserDocument", back_populates="draft_submission")
+    document = relationship("UserDocument", back_populates="draft_submissions")
     submitter = relationship("User", foreign_keys=[submitted_by])
     reviewer = relationship("User", foreign_keys=[reviewed_by])
 

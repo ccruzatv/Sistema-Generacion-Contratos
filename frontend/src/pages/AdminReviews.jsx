@@ -315,8 +315,18 @@ export default function AdminReviews() {
                     onClick={() => handleExpand(r)}
                   >
                     <td className="py-3 px-4">
-                      <div className="font-medium text-[#1a2d56] text-sm">
-                        {r.document_name}
+                      <div className="flex items-center gap-1.5">
+                        <div className="font-medium text-[#1a2d56] text-sm">
+                          {r.document_name}
+                        </div>
+                        {r.submission_number > 1 && (
+                          <span
+                            className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 flex-shrink-0"
+                            title="Este documento ya fue reenviado tras una corrección"
+                          >
+                            Envío #{r.submission_number}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-[#1a2d56]/40 mt-0.5">
                         {r.document_type === "base" ? "Base" : "Cronograma"}

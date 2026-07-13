@@ -151,11 +151,11 @@ def regenerate_document_corrected(
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
 
-    submission = db.query(DraftSubmission).filter(
+    rejected_submission = db.query(DraftSubmission).filter(
         DraftSubmission.document_id == doc_id,
         DraftSubmission.status == "rechazado",
-    ).first()
-    if not submission:
+    ).order_by(DraftSubmission.submitted_at.desc()).first()
+    if not rejected_submission:
         raise HTTPException(status_code=400, detail="Este documento no tiene un rechazo pendiente de corrección")
 
     template = db.query(Template).filter(Template.id == request.template_id).first()
@@ -178,11 +178,14 @@ def regenerate_document_corrected(
     if os.path.exists(pdf_path):
         os.remove(pdf_path)
 
-    submission.status = "pendiente"
-    submission.comment = ""
-    submission.submitter_comment = ""
-    submission.reviewed_by = None
-    submission.reviewed_at = None
+    # A new submission cycle is created (rather than reusing the rejected one)
+    # so the rejection's comment and reviewer stay intact as history.
+    new_submission = DraftSubmission(
+        document_id=doc.id,
+        submitted_by=user.id,
+        status="pendiente",
+    )
+    db.add(new_submission)
 
     doc.field_values_json = json.dumps(request.field_values, ensure_ascii=False)
 

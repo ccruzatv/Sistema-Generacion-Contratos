@@ -31,7 +31,7 @@ def _is_effectively_completed(item) -> bool:
     if not item.is_completed:
         return False
     doc = item.document
-    if doc is not None and doc.draft_submission and doc.draft_submission.status == "rechazado":
+    if doc is not None and doc.latest_submission and doc.latest_submission.status == "rechazado":
         return False
     return True
 
@@ -184,7 +184,7 @@ def get_bundle(
             except (json.JSONDecodeError, TypeError):
                 pass
         submission_status = (
-            doc.draft_submission.status if doc is not None and doc.draft_submission is not None else None
+            doc.latest_submission.status if doc is not None and doc.latest_submission is not None else None
         )
         is_approved = submission_status == "aprobado"
         has_fields = bool(item.template and item.template.fields)
@@ -285,8 +285,8 @@ def link_bundle_item(
 def _get_approved_items(bundle):
     return [
         item for item in bundle.items
-        if item.document and item.document.draft_submission
-        and item.document.draft_submission.status == "aprobado"
+        if item.document and item.document.latest_submission
+        and item.document.latest_submission.status == "aprobado"
     ]
 
 
