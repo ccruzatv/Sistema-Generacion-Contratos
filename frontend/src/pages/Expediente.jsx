@@ -14,6 +14,7 @@ import {
   submitDraft,
   generateDocument,
   linkBundleItem,
+  getDocumentFields,
 } from "../services/api";
 
 export default function Expediente() {
@@ -144,15 +145,29 @@ export default function Expediente() {
     }
   }
 
-  function handleGenerate(item) {
+  async function handleGenerate(item) {
     const hasDraft = item.draft_values && Object.keys(item.draft_values).length > 0;
     const isRejected = item.submission_status === "rechazado";
+
+    // If the item already has a generated document, reload its submitted
+    // values so the user re-edits them instead of starting from a blank form.
+    let editData = null;
+    if (item.document_id) {
+      try {
+        const fieldsData = await getDocumentFields(item.document_id);
+        editData = { field_values: fieldsData.field_values };
+      } catch {
+        // fall back to draft values below
+      }
+    }
+
     navigate(`/generate/${item.template_id}`, {
       state: {
         bundleId: Number(bundleId),
         bundleItemId: item.id,
         jurisdiccion: bundle?.jurisdiccion || "",
-        draftValues: hasDraft ? item.draft_values : null,
+        editData,
+        draftValues: !editData && hasDraft ? item.draft_values : null,
         // Pass correctionDocId when correcting a rejected document so regenerateDocument is called
         correctionDocId: isRejected && item.document_id ? item.document_id : null,
       },
@@ -392,10 +407,10 @@ export default function Expediente() {
                       <button
                         onClick={() => handleGenerate(item)}
                         className="inline-flex items-center gap-1 bg-[#1a2d56]/8 text-[#1a2d56] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/15 transition-colors"
-                        title="Regenerar documento"
+                        title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
-                        Regenerar
+                        {isRejected ? "Reeditar" : "Regenerar"}
                       </button>
                     </>
                   ) : item.template_id ? (
@@ -565,9 +580,9 @@ export default function Expediente() {
                             Enviar
                           </button>
                         )}
-                        <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1 bg-[#1a2d56]/8 text-[#1a2d56] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/15 transition-colors" title="Regenerar documento">
+                        <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1 bg-[#1a2d56]/8 text-[#1a2d56] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/15 transition-colors" title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
-                          Regenerar
+                          {isRejected ? "Reeditar" : "Regenerar"}
                         </button>
                       </>
                     ) : item.template_id ? (
