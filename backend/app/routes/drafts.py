@@ -21,6 +21,18 @@ except KeyError:
 
 router = APIRouter(prefix="/api/drafts", tags=["drafts"])
 
+_TEMPLATES_DIR = os.environ.get(
+    "TEMPLATES_DIR",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "templates"),
+)
+
+
+def _resolve_template_path(stored: str) -> str:
+    """Resolve stored file_path to absolute path (supports legacy absolute paths)."""
+    if os.path.isabs(stored):
+        return stored
+    return os.path.join(_TEMPLATES_DIR, stored)
+
 
 class SubmitDraftRequest(BaseModel):
     document_id: int
@@ -497,8 +509,10 @@ def preview_document_pdf(
     if doc.template_id_ref:
         from ..models import Template
         tmpl = db.query(Template).filter(Template.id == doc.template_id_ref).first()
-        if tmpl and os.path.exists(tmpl.file_path):
-            template_path = tmpl.file_path
+        if tmpl:
+            resolved = _resolve_template_path(tmpl.file_path)
+            if os.path.exists(resolved):
+                template_path = resolved
 
     preview_docx = os.path.join(GENERATED_DIR, f"_preview_{doc.docx_filename}")
     try:
