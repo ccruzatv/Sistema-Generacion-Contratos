@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -9,7 +10,8 @@ from sqlalchemy import inspect as sa_inspect, text
 
 from .database import engine, Base, SessionLocal
 from . import models  # noqa: ensure all models are registered before create_all
-from .routes import templates, documents, auth, users, categories, repository, drafts, bundles, dashboard, tribunales
+from .scheduler import start_scheduler
+from .routes import templates, documents, auth, users, categories, repository, drafts, bundles, dashboard, tribunales, direcciones, presupuesto, uploads
 from .seed import seed_database
 
 
@@ -75,20 +77,23 @@ try:
 finally:
     db.close()
 
+start_scheduler()
+
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
-    title="Sistema de Generación de Contratos",
-    description="Generador de contratos - Poder Judicial de Chile",
-    version="1.2.0",
+    title="Sistema de Generación Automatizada de Contratos",
+    description="SGAC - Generador de contratos - Poder Judicial de Chile",
+    version="2.0.0",
 )
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SecurityHeadersMiddleware)
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -104,8 +109,11 @@ app.include_router(drafts.router)
 app.include_router(bundles.router)
 app.include_router(dashboard.router)
 app.include_router(tribunales.router)
+app.include_router(direcciones.router)
+app.include_router(presupuesto.router)
+app.include_router(uploads.router)
 
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "message": "Sistema de Generación de Contratos API funcionando"}
+    return {"status": "ok", "message": "Sistema de Generación Automatizada de Contratos (SGAC) - API funcionando"}

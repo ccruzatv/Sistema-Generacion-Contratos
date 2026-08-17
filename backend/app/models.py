@@ -191,3 +191,36 @@ class BundleItem(Base):
     bundle = relationship("DocumentBundle", back_populates="items")
     template = relationship("Template")
     document = relationship("UserDocument")
+
+
+class DireccionInmueble(Base):
+    __tablename__ = "direcciones_inmuebles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    jurisdiccion = Column(String(100), nullable=False, index=True)
+    nombre_edificio = Column(String(500), nullable=False)
+    direccion_seal = Column(String(500), nullable=False)
+    situacion_actual = Column(String(50), default="")
+    created_at = Column(DateTime, default=lambda: _now_chile())
+
+
+class PresupuestoCombinacion(Base):
+    __tablename__ = "presupuesto_combinaciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    subtitulo = Column(String(10), nullable=False, index=True)
+    item = Column(String(10), nullable=False, index=True)
+    asignacion = Column(String(10), nullable=False)
+    glosa = Column(String(500), default="")
+    created_at = Column(DateTime, default=lambda: _now_chile())
+
+
+class UploadLog(Base):
+    __tablename__ = "upload_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String(50), nullable=False, index=True)
+    filename = Column(String(500), default="")
+    record_count = Column(Integer, default=0)
+    uploaded_by = Column(String(255), default="")
+    created_at = Column(DateTime, default=lambda: _now_chile())

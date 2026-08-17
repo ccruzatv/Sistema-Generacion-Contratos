@@ -182,10 +182,10 @@ export default function GenerateDocument() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#1a2d56]">
+        <h1 className="text-2xl font-bold text-[#112d86]">
           {correctionDocId ? "Corregir Documento" : bundleId ? "Generar Documento" : "Generar Contratos"}
         </h1>
-        <p className="text-sm text-[#1a2d56]/60 mt-1">
+        <p className="text-sm text-[#112d86]/60 mt-1">
           {correctionDocId
             ? "Modifique los campos necesarios y guarde para reenviar a validación"
             : bundleId
@@ -195,17 +195,17 @@ export default function GenerateDocument() {
       </div>
 
       {!bundleId && !correctionDocId && (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-6">
-          <label className="block text-sm font-medium text-[#1a2d56] mb-2">Seleccione una plantilla</label>
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
+          <label className="block text-sm font-medium text-[#112d86] mb-2">Seleccione una plantilla</label>
           {loadingTemplates ? (
-            <p className="text-[#1a2d56]/40 text-sm">Cargando plantillas...</p>
+            <p className="text-[#112d86]/40 text-sm">Cargando plantillas...</p>
           ) : templates.length === 0 ? (
-            <p className="text-[#1a2d56]/40 text-sm">No hay plantillas disponibles.</p>
+            <p className="text-[#112d86]/40 text-sm">No hay plantillas disponibles.</p>
           ) : (
             <select
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
-              className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+              className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#112d86]/30"
             >
               <option value="">-- Seleccione una plantilla --</option>
               {templates.map((t) => (
@@ -220,23 +220,23 @@ export default function GenerateDocument() {
 
       {template && template.fields.length > 0 && (
         <>
-          <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
             {jurisdiccionLocked ? (
               <div>
-                <label className="block text-sm font-medium text-[#1a2d56] mb-1">Jurisdicción</label>
-                <div className="flex items-center gap-2 border border-[#1a2d56]/20 rounded-lg px-3 py-2 bg-[#1a2d56]/[0.03]">
-                  <svg className="w-4 h-4 text-[#1a2d56]/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
-                  <span className="text-sm font-medium text-[#1a2d56]">{jurisdiccion}</span>
-                  <span className="ml-auto text-[10px] text-[#1a2d56]/40 bg-[#1a2d56]/5 px-2 py-0.5 rounded-full">Asignada a su cuenta</span>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">Jurisdicción</label>
+                <div className="flex items-center gap-2 border border-[#112d86]/20 rounded-lg px-3 py-2 bg-[#112d86]/[0.03]">
+                  <svg className="w-4 h-4 text-[#112d86]/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+                  <span className="text-sm font-medium text-[#112d86]">{jurisdiccion}</span>
+                  <span className="ml-auto text-[10px] text-[#112d86]/40 bg-[#112d86]/5 px-2 py-0.5 rounded-full">Asignada a su cuenta</span>
                 </div>
               </div>
             ) : (
               <JurisdiccionSelector value={jurisdiccion} onChange={setJurisdiccion} />
             )}
           </div>
-          <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-6">
-            <h2 className="text-lg font-semibold text-[#1a2d56] mb-1">{template.name}</h2>
-            <p className="text-xs text-[#1a2d56]/40 mb-5">Complete todos los campos requeridos (*)</p>
+          <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
+            <h2 className="text-lg font-semibold text-[#112d86] mb-1">{template.name}</h2>
+            <p className="text-xs text-[#112d86]/40 mb-5">Complete todos los campos requeridos (*)</p>
             <DynamicForm
               key={selectedId}
               fields={template.fields}
@@ -264,14 +264,14 @@ export default function GenerateDocument() {
       {showPreview && previewUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2d56]/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#112d86]/10">
               <div>
-                <h3 className="text-lg font-semibold text-[#1a2d56]">Vista previa del documento</h3>
-                <p className="text-xs text-[#1a2d56]/40">Solo lectura — Este documento aún no ha sido validado</p>
+                <h3 className="text-lg font-semibold text-[#112d86]">Vista previa del documento</h3>
+                <p className="text-xs text-[#112d86]/40">Solo lectura — Este documento aún no ha sido validado</p>
               </div>
               <button
                 onClick={() => { setShowPreview(false); URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }}
-                className="text-[#1a2d56]/40 hover:text-[#1a2d56] text-xl font-bold px-2"
+                className="text-[#112d86]/40 hover:text-[#112d86] text-xl font-bold px-2"
               >
                 ✕
               </button>
@@ -302,7 +302,7 @@ export default function GenerateDocument() {
             <button
               onClick={handleAfterGenerate}
               className="w-full text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors"
-              style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+              style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
             >
               {bundleId ? "Volver al Expediente" : "Volver al Repositorio"}
             </button>
@@ -317,7 +317,7 @@ export default function GenerateDocument() {
                 </div>
                 <button
                   onClick={() => navigate("/repository")}
-                  className="w-full text-center bg-[#1a2d56] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#243b6e] transition-colors"
+                  className="w-full text-center bg-[#112d86] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#1a3a9e] transition-colors"
                 >
                   Ir al Repositorio Personal
                 </button>
@@ -326,12 +326,12 @@ export default function GenerateDocument() {
               <div className="space-y-3">
                 <button
                   onClick={handlePreview}
-                  className="w-full text-center bg-[#1a2d56] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#243b6e] transition-colors"
+                  className="w-full text-center bg-[#112d86] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#1a3a9e] transition-colors"
                 >
                   Previsualizar Documento
                 </button>
                 <div>
-                  <label className="block text-sm font-medium text-[#1a2d56] mb-1">
+                  <label className="block text-sm font-medium text-[#112d86] mb-1">
                     Comentario para el revisor (opcional)
                   </label>
                   <textarea
@@ -339,7 +339,7 @@ export default function GenerateDocument() {
                     onChange={(e) => setDraftComment(e.target.value)}
                     placeholder="Ej: Adjuntar documentos adicionales, aclaración sobre montos, etc."
                     rows={3}
-                    className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30 focus:border-[#1a2d56]/40 bg-white"
+                    className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30 focus:border-[#112d86]/40 bg-white"
                   />
                 </div>
                 <button
@@ -355,7 +355,7 @@ export default function GenerateDocument() {
               <button
                 onClick={() => handleDownload(getDocxDownloadUrl(result.docx_filename), result.docx_filename)}
                 className="flex-1 flex items-center justify-center gap-2 text-white py-2.5 px-4 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all"
-                style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                 Descargar Word (.docx)

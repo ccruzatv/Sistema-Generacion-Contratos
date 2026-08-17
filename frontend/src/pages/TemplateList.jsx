@@ -19,7 +19,7 @@ function NameModal({ title, initial = "", onConfirm, onClose }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
-        <h3 className="text-base font-semibold text-[#1a2d56] mb-4">{title}</h3>
+        <h3 className="text-base font-semibold text-[#112d86] mb-4">{title}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             ref={inputRef}
@@ -27,17 +27,17 @@ function NameModal({ title, initial = "", onConfirm, onClose }) {
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Nombre de la carpeta"
-            className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a2d56]/30"
+            className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#112d86]/30"
           />
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#1a2d56]/60 hover:text-[#1a2d56] transition-colors">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-[#112d86]/60 hover:text-[#112d86] transition-colors">
               Cancelar
             </button>
             <button
               type="submit"
               disabled={!value.trim()}
               className="px-4 py-2 text-sm font-semibold text-white rounded-lg disabled:opacity-40 transition-all"
-              style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+              style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
             >
               Guardar
             </button>
@@ -191,8 +191,8 @@ export default function TemplateList() {
 
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a2d56]">Plantillas de Contratos</h1>
-          <p className="text-sm text-[#1a2d56]/60 mt-1">
+          <h1 className="text-2xl font-bold text-[#112d86]">Plantillas de Contratos</h1>
+          <p className="text-sm text-[#112d86]/60 mt-1">
             {selectedSub
               ? `${selectedType.name} / ${selectedSub.name}`
               : selectedType
@@ -205,7 +205,7 @@ export default function TemplateList() {
           <button
             onClick={() => setShowUpload(!showUpload)}
             className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+            style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               {showUpload ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />}
@@ -228,14 +228,14 @@ export default function TemplateList() {
         />
       )}
 
-      {/* Tipos de Licitación */}
+      {/* Tipos de Contrato */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xs font-semibold text-[#1a2d56]/50 uppercase tracking-wider">Tipos de Contrato</h2>
+          <h2 className="text-xs font-semibold text-[#112d86]/50 uppercase tracking-wider">Tipos de Contrato</h2>
           {isSuperAdmin && (
             <button
               onClick={() => setModal({ mode: "create-type" })}
-              className="flex items-center gap-1 text-xs font-medium text-[#1a2d56] hover:text-[#c8a84e] transition-colors"
+              className="flex items-center gap-1 text-xs font-medium text-[#112d86] hover:text-[#c8a84e] transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
               Nuevo tipo
@@ -253,26 +253,26 @@ export default function TemplateList() {
                   className={`w-full h-full flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all ${
                     isSelected
                       ? "border-[#c8a84e] bg-[#c8a84e]/5 shadow-md"
-                      : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/25 hover:shadow-md"
+                      : "border-[#112d86]/10 bg-white hover:border-[#112d86]/25 hover:shadow-md"
                   }`}
                 >
                   <div
                     className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
-                      isSelected ? "bg-[#c8a84e]/15" : "bg-[#1a2d56]/6"
+                      isSelected ? "bg-[#c8a84e]/15" : "bg-[#112d86]/6"
                     }`}
                   >
                     <svg
-                      className={`w-6 h-6 ${isSelected ? "text-[#c8a84e]" : "text-[#1a2d56]/45"}`}
+                      className={`w-6 h-6 ${isSelected ? "text-[#c8a84e]" : "text-[#112d86]/45"}`}
                       fill="currentColor" viewBox="0 0 24 24"
                     >
                       <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
                     </svg>
                   </div>
                   <div className="min-w-0 pt-1">
-                    <p className="text-[13px] font-normal text-[#1a2d56] leading-relaxed text-justify">
+                    <p className="text-[13px] font-normal text-[#112d86] leading-relaxed text-justify">
                       {bt.name}
                     </p>
-                    <p className="text-[11px] text-[#1a2d56]/40 mt-2">
+                    <p className="text-[11px] text-[#112d86]/40 mt-2">
                       {totalTemplates} plantilla{totalTemplates !== 1 ? "s" : ""}
                     </p>
                   </div>
@@ -282,7 +282,7 @@ export default function TemplateList() {
                     <button
                       onClick={(e) => { e.stopPropagation(); setModal({ mode: "rename", target: bt }); }}
                       title="Renombrar"
-                      className="p-1.5 rounded-lg bg-white shadow border border-[#1a2d56]/10 text-[#1a2d56]/50 hover:text-[#1a2d56] transition-colors"
+                      className="p-1.5 rounded-lg bg-white shadow border border-[#112d86]/10 text-[#112d86]/50 hover:text-[#112d86] transition-colors"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
                     </button>
@@ -305,13 +305,13 @@ export default function TemplateList() {
       {selectedType && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xs font-semibold text-[#1a2d56]/50 uppercase tracking-wider">
+            <h2 className="text-xs font-semibold text-[#112d86]/50 uppercase tracking-wider">
               Subcarpetas — {selectedType.name}
             </h2>
             {isSuperAdmin && (
               <button
                 onClick={() => setModal({ mode: "create-sub" })}
-                className="flex items-center gap-1 text-xs font-medium text-[#1a2d56] hover:text-[#c8a84e] transition-colors"
+                className="flex items-center gap-1 text-xs font-medium text-[#112d86] hover:text-[#c8a84e] transition-colors"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
                 Nueva subcarpeta
@@ -319,7 +319,7 @@ export default function TemplateList() {
             )}
           </div>
           {subcategories.length === 0 ? (
-            <p className="text-xs text-[#1a2d56]/40 italic">Sin subcarpetas. {isSuperAdmin && "Crea una con el botón anterior."}</p>
+            <p className="text-xs text-[#112d86]/40 italic">Sin subcarpetas. {isSuperAdmin && "Crea una con el botón anterior."}</p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {subcategories.map((sub) => {
@@ -330,25 +330,25 @@ export default function TemplateList() {
                     onClick={() => handleSelectSub(sub)}
                     className={`w-full h-full flex items-center gap-3.5 p-4 rounded-2xl border-2 text-left transition-all ${
                       isSelected
-                        ? "border-[#1a2d56] bg-[#1a2d56]/5 shadow-md"
-                        : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/25 hover:shadow-md"
+                        ? "border-[#112d86] bg-[#112d86]/5 shadow-md"
+                        : "border-[#112d86]/10 bg-white hover:border-[#112d86]/25 hover:shadow-md"
                     }`}
                   >
                     <div
                       className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                        isSelected ? "bg-[#1a2d56]/10" : "bg-[#1a2d56]/6"
+                        isSelected ? "bg-[#112d86]/10" : "bg-[#112d86]/6"
                       }`}
                     >
                       <svg
-                        className={`w-5 h-5 ${isSelected ? "text-[#1a2d56]" : "text-[#1a2d56]/35"}`}
+                        className={`w-5 h-5 ${isSelected ? "text-[#112d86]" : "text-[#112d86]/35"}`}
                         fill="currentColor" viewBox="0 0 24 24"
                       >
                         <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
                       </svg>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-normal text-[#1a2d56] leading-snug">{sub.name}</p>
-                      <p className="text-[11px] text-[#1a2d56]/40 mt-0.5">
+                      <p className="text-sm font-normal text-[#112d86] leading-snug">{sub.name}</p>
+                      <p className="text-[11px] text-[#112d86]/40 mt-0.5">
                         {sub.template_count} plantilla{sub.template_count !== 1 ? "s" : ""}
                       </p>
                     </div>
@@ -358,7 +358,7 @@ export default function TemplateList() {
                       <button
                         onClick={(e) => { e.stopPropagation(); setModal({ mode: "rename", target: sub }); }}
                         title="Renombrar"
-                        className="p-1.5 rounded-lg bg-white shadow border border-[#1a2d56]/10 text-[#1a2d56]/50 hover:text-[#1a2d56] transition-colors"
+                        className="p-1.5 rounded-lg bg-white shadow border border-[#112d86]/10 text-[#112d86]/50 hover:text-[#112d86] transition-colors"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
                       </button>
@@ -382,15 +382,15 @@ export default function TemplateList() {
       {/* Templates list */}
       {selectedSub ? (
         loading ? (
-          <div className="text-center py-8 text-[#1a2d56]/50">Cargando...</div>
+          <div className="text-center py-8 text-[#112d86]/50">Cargando...</div>
         ) : templates.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-10 text-center">
-            <p className="text-[#1a2d56]/60">No hay plantillas en esta subcarpeta.</p>
+          <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-10 text-center">
+            <p className="text-[#112d86]/60">No hay plantillas en esta subcarpeta.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-[#1a2d56]/8 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-[#112d86]/8 overflow-hidden">
             <table className="w-full">
-              <thead style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}>
+              <thead style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}>
                 <tr>
                   <th className="py-3.5 px-5 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider">Plantilla</th>
                   <th className="py-3.5 px-5 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider">Campos</th>
@@ -400,22 +400,22 @@ export default function TemplateList() {
               </thead>
               <tbody>
                 {templates.map((t) => (
-                  <tr key={t.id} className="border-t border-[#1a2d56]/5 hover:bg-[#1a2d56]/[0.02]">
+                  <tr key={t.id} className="border-t border-[#112d86]/5 hover:bg-[#112d86]/[0.02]">
                     <td className="py-3 px-5">
-                      <div className="font-medium text-[#1a2d56] text-sm">{t.name}</div>
-                      {t.description && <div className="text-xs text-[#1a2d56]/40 mt-0.5">{t.description}</div>}
+                      <div className="font-medium text-[#112d86] text-sm">{t.name}</div>
+                      {t.description && <div className="text-xs text-[#112d86]/40 mt-0.5">{t.description}</div>}
                     </td>
                     <td className="py-3 px-5">
-                      <span className="bg-[#1a2d56]/10 text-[#1a2d56] text-xs font-medium px-2 py-0.5 rounded-full">{t.field_count}</span>
+                      <span className="bg-[#112d86]/10 text-[#112d86] text-xs font-medium px-2 py-0.5 rounded-full">{t.field_count}</span>
                     </td>
-                    <td className="py-3 px-5 text-xs text-[#1a2d56]/40">
+                    <td className="py-3 px-5 text-xs text-[#112d86]/40">
                       {new Date(t.created_at).toLocaleDateString("es-CL")}
                     </td>
                     <td className="py-3 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={`/templates/${t.id}`}
-                          className="inline-flex items-center gap-1 bg-[#1a2d56]/5 text-[#1a2d56] py-1.5 px-3 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/10 transition-colors"
+                          className="inline-flex items-center gap-1 bg-[#112d86]/5 text-[#112d86] py-1.5 px-3 rounded-lg text-xs font-medium hover:bg-[#112d86]/10 transition-colors"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                           {isSuperAdmin ? "Administrar" : "Ver"}
@@ -438,12 +438,12 @@ export default function TemplateList() {
           </div>
         )
       ) : selectedType ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-10 text-center">
-          <p className="text-[#1a2d56]/50 text-sm">Seleccione una subcarpeta para ver las plantillas.</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-10 text-center">
+          <p className="text-[#112d86]/50 text-sm">Seleccione una subcarpeta para ver las plantillas.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-10 text-center">
-          <p className="text-[#1a2d56]/50 text-sm">Seleccione un tipo de contrato para ver sus subcarpetas y plantillas.</p>
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-10 text-center">
+          <p className="text-[#112d86]/50 text-sm">Seleccione un tipo de contrato para ver sus subcarpetas y plantillas.</p>
         </div>
       )}
     </div>

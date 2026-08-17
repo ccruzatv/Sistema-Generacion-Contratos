@@ -58,36 +58,36 @@ export default function TemplateDetail() {
     }
   }
 
-  if (loading) return <div className="text-center py-12 text-[#1a2d56]/50">Cargando...</div>;
+  if (loading) return <div className="text-center py-12 text-[#112d86]/50">Cargando...</div>;
   if (!template) return <div className="text-center py-12 text-red-500">Plantilla no encontrada</div>;
 
   return (
     <div className="space-y-6">
-      <Link to="/templates" className="text-[#1a2d56] hover:text-[#243b6e] text-sm font-medium">
+      <Link to="/templates" className="text-[#112d86] hover:text-[#1a3a9e] text-sm font-medium">
         &larr; Volver a Plantillas de Bases
       </Link>
 
-      <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
         {isSuperAdmin && editName ? (
           <div className="space-y-3">
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="text-2xl font-bold border border-[#1a2d56]/20 rounded-lg px-3 py-1 w-full focus:ring-2 focus:ring-[#1a2d56]/30"
+              className="text-2xl font-bold border border-[#112d86]/20 rounded-lg px-3 py-1 w-full focus:ring-2 focus:ring-[#112d86]/30"
             />
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Descripción"
-              className="border border-[#1a2d56]/20 rounded-lg px-3 py-1.5 w-full text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+              className="border border-[#112d86]/20 rounded-lg px-3 py-1.5 w-full text-sm focus:ring-2 focus:ring-[#112d86]/30"
             />
             <div className="flex gap-2">
-              <button onClick={handleUpdateInfo} className="bg-[#1a2d56] text-white px-4 py-1.5 rounded-lg text-sm hover:bg-[#243b6e]">
+              <button onClick={handleUpdateInfo} className="bg-[#112d86] text-white px-4 py-1.5 rounded-lg text-sm hover:bg-[#1a3a9e]">
                 Guardar
               </button>
-              <button onClick={() => setEditName(false)} className="bg-[#1a2d56]/5 text-[#1a2d56] px-4 py-1.5 rounded-lg text-sm hover:bg-[#1a2d56]/10">
+              <button onClick={() => setEditName(false)} className="bg-[#112d86]/5 text-[#112d86] px-4 py-1.5 rounded-lg text-sm hover:bg-[#112d86]/10">
                 Cancelar
               </button>
             </div>
@@ -95,14 +95,14 @@ export default function TemplateDetail() {
         ) : (
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-2xl font-bold text-[#1a2d56]">{template.name}</h1>
-              {template.description && <p className="text-[#1a2d56]/50 mt-1">{template.description}</p>}
+              <h1 className="text-2xl font-bold text-[#112d86]">{template.name}</h1>
+              {template.description && <p className="text-[#112d86]/50 mt-1">{template.description}</p>}
               {template.category_name && (
                 <span className="inline-block mt-2 bg-[#c8a84e]/10 text-[#8a7232] text-xs font-medium px-2.5 py-0.5 rounded-full">
                   {template.category_name}
                 </span>
               )}
-              <p className="text-xs text-[#1a2d56]/30 mt-2">
+              <p className="text-xs text-[#112d86]/30 mt-2">
                 Creada: {new Date(template.created_at).toLocaleDateString("es-CL")} |
                 Actualizada: {new Date(template.updated_at).toLocaleDateString("es-CL")}
               </p>
@@ -110,7 +110,7 @@ export default function TemplateDetail() {
             <div className="flex gap-2">
               {isSuperAdmin && (
                 <>
-                  <button onClick={() => setEditName(true)} className="bg-[#1a2d56]/5 text-[#1a2d56] px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#1a2d56]/10">
+                  <button onClick={() => setEditName(true)} className="bg-[#112d86]/5 text-[#112d86] px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#112d86]/10">
                     Editar Info
                   </button>
                   <button onClick={handleReparse} className="bg-[#c8a84e]/10 text-[#8a7232] px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-[#c8a84e]/20 border border-[#c8a84e]/30">
@@ -118,7 +118,7 @@ export default function TemplateDetail() {
                   </button>
                 </>
               )}
-              <Link to={`/generate/${template.id}`} className="bg-[#1a2d56] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-[#243b6e]">
+              <Link to={`/generate/${template.id}`} className="bg-[#112d86] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-[#1a3a9e]">
                 Generar Documento
               </Link>
             </div>

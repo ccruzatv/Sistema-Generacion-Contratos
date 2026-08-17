@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 285" fill="#112d86">
+  <polygon points="180,12 18,108 342,108"/>
+  <polygon points="180,30 42,102 318,102" fill="#ffffff"/>
+  <polygon points="180,34 48,100 312,100" fill="#112d86"/>
+  <line x1="180" y1="12" x2="180" y2="34" stroke="#ffffff" stroke-width="1.5" opacity="0.3"/>
+  <rect x="18" y="108" width="324" height="14" rx="0"/>
+  <rect x="18" y="120" width="324" height="3" fill="#ffffff" opacity="0.15"/>
+  <rect x="100" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="108" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="116" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="124" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="132" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="224" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="232" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="240" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="248" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="256" y="126" width="3.5" height="96" fill="#112d86"/>
+  <rect x="30" y="124" width="22" height="100"/>
+  <rect x="36" y="124" width="4" height="100" fill="#ffffff" opacity="0.08"/>
+  <rect x="308" y="124" width="22" height="100"/>
+  <rect x="314" y="124" width="4" height="100" fill="#ffffff" opacity="0.08"/>
+  <ellipse cx="82" cy="140" rx="12" ry="13"/>
+  <ellipse cx="82" cy="133" rx="10" ry="5" fill="#112d86"/>
+  <rect x="77" y="152" width="10" height="6"/>
+  <path d="M67,158 Q67,155 72,155 L92,155 Q97,155 97,158 L97,164 L67,164 Z"/>
+  <ellipse cx="278" cy="140" rx="12" ry="13"/>
+  <ellipse cx="278" cy="133" rx="10" ry="5" fill="#112d86"/>
+  <rect x="273" y="152" width="10" height="6"/>
+  <path d="M263,158 Q263,155 268,155 L288,155 Q293,155 293,158 L293,164 L263,164 Z"/>
+  <rect x="0" y="224" width="360" height="18"/>
+  <rect x="20" y="242" width="320" height="14"/>
+  <rect x="40" y="256" width="280" height="12"/>
+  <rect x="0" y="268" width="360" height="8"/>
+  <rect x="0" y="278" width="360" height="6"/>
+</svg>

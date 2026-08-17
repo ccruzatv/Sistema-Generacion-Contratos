@@ -46,8 +46,8 @@ export default function UploadTemplate({ biddingTypes = [], selectedTypeId = nul
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-6 space-y-4">
-      <h2 className="text-lg font-semibold text-[#1a2d56]">Cargar Nueva Plantilla</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6 space-y-4">
+      <h2 className="text-lg font-semibold text-[#112d86]">Cargar Nueva Plantilla</h2>
 
       {error && (
         <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm">{error}</div>
@@ -55,24 +55,24 @@ export default function UploadTemplate({ biddingTypes = [], selectedTypeId = nul
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#1a2d56] mb-1">Nombre</label>
+          <label className="block text-sm font-medium text-[#112d86] mb-1">Nombre</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+            className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
             placeholder="Ej: Contrato de Servicios"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1a2d56] mb-1">Tipo de Contrato</label>
+          <label className="block text-sm font-medium text-[#112d86] mb-1">Tipo de Contrato</label>
           <select
             value={typeId}
             onChange={(e) => handleTypeChange(e.target.value)}
             disabled={!!selectedTypeId}
-            className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30 disabled:bg-[#1a2d56]/5"
+            className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30 disabled:bg-[#112d86]/5"
           >
             <option value="">— Seleccione tipo —</option>
             {biddingTypes.map((bt) => (
@@ -84,12 +84,12 @@ export default function UploadTemplate({ biddingTypes = [], selectedTypeId = nul
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-[#1a2d56] mb-1">Subcarpeta</label>
+          <label className="block text-sm font-medium text-[#112d86] mb-1">Subcarpeta</label>
           <select
             value={subId}
             onChange={(e) => setSubId(e.target.value)}
             disabled={!typeId || !!selectedSubId}
-            className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30 disabled:bg-[#1a2d56]/5"
+            className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30 disabled:bg-[#112d86]/5"
           >
             <option value="">— Seleccione subcarpeta —</option>
             {subcategories.map((s) => (
@@ -99,26 +99,26 @@ export default function UploadTemplate({ biddingTypes = [], selectedTypeId = nul
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#1a2d56] mb-1">Descripción</label>
+          <label className="block text-sm font-medium text-[#112d86] mb-1">Descripción</label>
           <input
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+            className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
             placeholder="Descripción opcional"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-[#1a2d56] mb-1">Archivo Word (.docx)</label>
+        <label className="block text-sm font-medium text-[#112d86] mb-1">Archivo Word (.docx)</label>
         <input
           type="file"
           accept=".docx"
           onChange={(e) => setFile(e.target.files[0] || null)}
-          className="w-full text-sm text-[#1a2d56]/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#1a2d56]/5 file:text-[#1a2d56] hover:file:bg-[#1a2d56]/10"
+          className="w-full text-sm text-[#112d86]/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#112d86]/5 file:text-[#112d86] hover:file:bg-[#112d86]/10"
         />
-        <p className="mt-1 text-xs text-[#1a2d56]/40">
+        <p className="mt-1 text-xs text-[#112d86]/40">
           Use marcadores {"{{campo}}"} en la plantilla Word para definir campos dinámicos.
         </p>
       </div>
@@ -126,7 +126,7 @@ export default function UploadTemplate({ biddingTypes = [], selectedTypeId = nul
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#1a2d56] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#243b6e] disabled:opacity-50 transition-colors"
+        className="w-full bg-[#112d86] text-white py-2.5 px-4 rounded-lg text-sm font-medium hover:bg-[#1a3a9e] disabled:opacity-50 transition-colors"
       >
         {loading ? "Subiendo..." : "Cargar Plantilla"}
       </button>
