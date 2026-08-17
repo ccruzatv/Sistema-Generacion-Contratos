@@ -78,15 +78,15 @@ export default function Expedientes() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a2d56]">Generar Contratos</h1>
-          <p className="text-sm text-[#1a2d56]/60 mt-1">
+          <h1 className="text-2xl font-bold text-[#112d86]">Generar Contratos</h1>
+          <p className="text-sm text-[#112d86]/60 mt-1">
             Gestione sus expedientes de antecedentes de contrato
           </p>
         </div>
         <button
           onClick={() => setShowNew(!showNew)}
           className="inline-flex items-center gap-2 text-white py-2 px-4 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md transition-all"
-          style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+          style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -98,17 +98,17 @@ export default function Expedientes() {
       {/* New Bundle form */}
       {showNew && (
         <div className="bg-white rounded-xl shadow-sm border-2 border-[#c8a84e]/40 p-6">
-          <h2 className="text-base font-semibold text-[#1a2d56] mb-4">Crear Nuevo Expediente</h2>
+          <h2 className="text-base font-semibold text-[#112d86] mb-4">Crear Nuevo Expediente</h2>
           <form onSubmit={handleCreate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#1a2d56] mb-1">
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
                   Tipo de Contrato <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={newTypeId}
                   onChange={(e) => setNewTypeId(e.target.value)}
-                  className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+                  className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#112d86]/30"
                 >
                   <option value="">— Seleccione tipo de contrato —</option>
                   {biddingTypes.map((bt) => (
@@ -117,23 +117,23 @@ export default function Expedientes() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#1a2d56] mb-1">
-                  Nombre del Contrato <span className="text-[#1a2d56]/40 font-normal text-xs">(opcional)</span>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
+                  Nombre del Contrato <span className="text-[#112d86]/40 font-normal text-xs">(opcional)</span>
                 </label>
                 <input
                   type="text"
                   value={newNombre}
                   onChange={(e) => setNewNombre(e.target.value)}
                   placeholder="Ej: Servicio de Aseo Edificio Tribunales"
-                  className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+                  className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#112d86]/30"
                 />
               </div>
               <div className="md:col-span-2">
                 <JurisdiccionSelector value={newJurisdiccion} onChange={setNewJurisdiccion} />
               </div>
             </div>
-            <div className="bg-[#1a2d56]/5 rounded-lg p-3">
-              <p className="text-xs text-[#1a2d56]/60">
+            <div className="bg-[#112d86]/5 rounded-lg p-3">
+              <p className="text-xs text-[#112d86]/60">
                 Se creará una lista de comprobación con el contrato principal y, opcionalmente,
                 los anexos correspondientes.
               </p>
@@ -145,7 +145,7 @@ export default function Expedientes() {
               <button
                 type="button"
                 onClick={() => { setShowNew(false); setError(""); }}
-                className="px-4 py-2 text-sm text-[#1a2d56]/60 hover:text-[#1a2d56] transition-colors"
+                className="px-4 py-2 text-sm text-[#112d86]/60 hover:text-[#112d86] transition-colors"
               >
                 Cancelar
               </button>
@@ -153,7 +153,7 @@ export default function Expedientes() {
                 type="submit"
                 disabled={creating}
                 className="px-5 py-2 text-sm font-semibold text-white rounded-lg disabled:opacity-50 transition-all"
-                style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
               >
                 {creating ? "Creando..." : "Crear Expediente"}
               </button>
@@ -165,7 +165,7 @@ export default function Expedientes() {
       {/* Search */}
       {!loading && bundles.length > 0 && (
         <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a2d56]/30"
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#112d86]/30"
             fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -175,11 +175,11 @@ export default function Expedientes() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre, tipo o jurisdicción..."
-            className="w-full pl-10 pr-4 py-2.5 border border-[#1a2d56]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#1a2d56]/20 focus:border-[#1a2d56]/30 bg-white"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#112d86]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#112d86]/20 focus:border-[#112d86]/30 bg-white"
           />
           {search && (
             <button onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2d56]/30 hover:text-[#1a2d56]/60 text-sm">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#112d86]/30 hover:text-[#112d86]/60 text-sm">
               Limpiar
             </button>
           )}
@@ -188,14 +188,14 @@ export default function Expedientes() {
 
       {/* Bundle list */}
       {loading ? (
-        <div className="text-center py-10 text-[#1a2d56]/50">Cargando expedientes...</div>
+        <div className="text-center py-10 text-[#112d86]/50">Cargando expedientes...</div>
       ) : bundles.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-12 text-center">
-          <svg className="w-14 h-14 mx-auto text-[#1a2d56]/15 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-12 text-center">
+          <svg className="w-14 h-14 mx-auto text-[#112d86]/15 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.2}
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-[#1a2d56]/50 text-sm">
+          <p className="text-[#112d86]/50 text-sm">
             No ha creado expedientes aún. Haga clic en <strong>Nuevo Expediente</strong> para comenzar.
           </p>
         </div>
@@ -218,7 +218,7 @@ export default function Expedientes() {
             return (
               <div
                 key={b.id}
-                className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 overflow-hidden hover:shadow-md transition-shadow"
+                className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div
                   className="px-5 py-4 cursor-pointer"
@@ -234,21 +234,21 @@ export default function Expedientes() {
                           </span>
                         )}
                       </div>
-                      <p className="text-[#1a2d56] font-semibold text-sm mt-0.5 truncate">{b.category_name}</p>
+                      <p className="text-[#112d86] font-semibold text-sm mt-0.5 truncate">{b.category_name}</p>
                       {b.nombre_licitacion && (
-                        <p className="text-xs text-[#1a2d56]/50 mt-0.5 truncate">{b.nombre_licitacion}</p>
+                        <p className="text-xs text-[#112d86]/50 mt-0.5 truncate">{b.nombre_licitacion}</p>
                       )}
                       {b.jurisdiccion && (
-                        <p className="text-xs text-[#1a2d56]/40 mt-0.5">{b.jurisdiccion}</p>
+                        <p className="text-xs text-[#112d86]/40 mt-0.5">{b.jurisdiccion}</p>
                       )}
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-lg font-bold text-[#1a2d56]">{b.completed_items}</span>
-                      <span className="text-sm text-[#1a2d56]/40">/{b.total_items}</span>
+                      <span className="text-lg font-bold text-[#112d86]">{b.completed_items}</span>
+                      <span className="text-sm text-[#112d86]/40">/{b.total_items}</span>
                     </div>
                   </div>
 
-                  <div className="h-1.5 bg-[#1a2d56]/8 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-[#112d86]/8 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
@@ -259,20 +259,20 @@ export default function Expedientes() {
                       }}
                     />
                   </div>
-                  <p className="text-[10px] text-[#1a2d56]/40 mt-1.5">
+                  <p className="text-[10px] text-[#112d86]/40 mt-1.5">
                     {b.completed_items} de {b.total_items} documentos completados
                   </p>
-                  <p className="text-[10px] text-[#1a2d56]/30 mt-1">
+                  <p className="text-[10px] text-[#112d86]/30 mt-1">
                     Creado: {new Date(b.created_at).toLocaleDateString("es-CL", {
                       day: "2-digit", month: "2-digit", year: "numeric"
                     })}
                   </p>
                 </div>
 
-                <div className="px-5 py-3 border-t border-[#1a2d56]/5 flex items-center justify-between">
+                <div className="px-5 py-3 border-t border-[#112d86]/5 flex items-center justify-between">
                   <button
                     onClick={() => navigate(`/expediente/${b.id}`)}
-                    className="text-xs font-semibold text-[#1a2d56] hover:text-[#243b6e] flex items-center gap-1 transition-colors"
+                    className="text-xs font-semibold text-[#112d86] hover:text-[#1a3a9e] flex items-center gap-1 transition-colors"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

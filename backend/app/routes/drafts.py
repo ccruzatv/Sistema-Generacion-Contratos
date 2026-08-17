@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import User, UserDocument, DraftSubmission, Notification, DocumentEvent
 from ..services.auth import get_current_user, require_admin
-from ..services.email_service import send_draft_notification_email
+from ..services.email_service import send_draft_notification_email, send_approval_email, send_rejection_email
 from ..services.document_generator import GENERATED_DIR, add_validation_footer, add_pending_footer, convert_to_pdf
 
 try:
@@ -210,6 +210,50 @@ def pending_reviews(
     return results
 
 
+@router.get("/reviewed")
+def reviewed_submissions(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Admin: full history of already-reviewed (aprobado/rechazado) submissions."""
+    query = db.query(DraftSubmission)
+    if admin.role != "superadmin" and admin.jurisdiccion:
+        query = query.join(DraftSubmission.submitter).filter(
+            User.jurisdiccion == admin.jurisdiccion
+        )
+    submissions = (
+        query.filter(DraftSubmission.status.in_(["aprobado", "rechazado"]))
+        .order_by(DraftSubmission.reviewed_at.desc())
+        .all()
+    )
+    results = []
+    for s in submissions:
+        field_values = {}
+        if s.document and s.document.field_values_json:
+            try:
+                field_values = json.loads(s.document.field_values_json)
+            except (json.JSONDecodeError, TypeError):
+                pass
+        results.append({
+            "id": s.id,
+            "document_id": s.document_id,
+            "document_name": s.document.document_name if s.document else "",
+            "document_type": s.document.document_type if s.document else "",
+            "docx_filename": s.document.docx_filename if s.document else "",
+            "jurisdiccion": field_values.get("jurisdiccion", ""),
+            "submitter_name": s.submitter.name if s.submitter else "",
+            "submitter_email": s.submitter.email if s.submitter else "",
+            "status": s.status,
+            "comment": s.comment or "",
+            "submitted_at": s.submitted_at.isoformat(),
+            "reviewed_at": s.reviewed_at.isoformat() if s.reviewed_at else None,
+            "reviewer_name": s.reviewer.name if s.reviewer else None,
+            "reviewer_role": s.reviewer.role if s.reviewer else None,
+            "submission_number": _submission_number(db, s),
+        })
+    return results
+
+
 @router.put("/{submission_id}/review")
 def review_draft(
     submission_id: int,
@@ -276,6 +320,12 @@ def review_draft(
         link="/repository",
     )
     db.add(notification)
+
+    if submission.submitter:
+        if request.status == "aprobado":
+            send_approval_email(submission.submitter.email, submission.submitter.name, doc_name)
+        else:
+            send_rejection_email(submission.submitter.email, submission.submitter.name, doc_name, request.comment)
 
     db.commit()
     return {"message": f"Borrador {status_label} exitosamente"}

@@ -1,8 +1,8 @@
-# Sistema de Generación de Contratos
+# SGAC — Sistema de Generación Automatizada de Contratos
 
 **Subdepartamento de Mejoramiento Continuo - Poder Judicial de Chile**
 
-**Versión:** 1.2.0 | **Fecha:** 15.06.2026
+**Versión:** 2.0.0 | **Fecha:** 14.08.2026
 
 Aplicación web para generar y gestionar documentos de contrato (Word/PDF) a partir de plantillas con campos dinámicos. Incluye flujo de validación de borradores, expedientes de contrato, descarga de documentos aprobados y trazabilidad completa.
 
@@ -26,11 +26,17 @@ backend/          Python FastAPI + Oracle (oracledb + SQLAlchemy ORM)
       bundles.py          Expedientes (DocumentBundle)
       tribunales.py       Tabla de jurisdicciones desde Excel OneDrive
       dashboard.py        Estadísticas generales
+      direcciones.py      Direcciones de inmuebles (carga Excel + autocompletado)
+      presupuesto.py      Combinaciones presupuestarias Subtítulo/Ítem/Asignación
+      uploads.py          Historial de cargas de datos maestros
+    scheduler.py        Recordatorios automáticos (3 y 5 días) de borradores pendientes
     services/
       auth.py               Hashing PBKDF2 (600k iter), tokens, dependencias
       template_parser.py    Extrae {{campos}} del .docx
       document_generator.py Rellena plantilla, inserta tabla de tribunales,
                             convierte a PDF, footers de validación
+      email_service.py      Notificaciones por correo (invitación, envío a revisión,
+                            aprobado, rechazado, recordatorio, cambio de contraseña)
   templates/      Archivos .docx subidos (ruta configurable via TEMPLATES_DIR)
   generated/      Documentos generados (ruta configurable via GENERATED_DIR)
   Dockerfile      Imagen Docker con LibreOffice incluido
@@ -47,8 +53,10 @@ frontend/         React 19 + Vite 8 + TailwindCSS 4
       Repository.jsx        Repositorio personal con trazabilidad
       AdminReviews.jsx      Revisión de borradores (admin/superadmin)
       AdminUsers.jsx        Gestión de usuarios (superadmin)
+      DatosMaestros.jsx     Carga de Excel de direcciones y presupuesto (superadmin)
     components/
-      DynamicForm.jsx         Formulario dinámico con deduplicación de campos
+      DynamicForm.jsx         Formulario dinámico con deduplicación de campos,
+                              autocompletado de dirección y presupuesto
       UploadTemplate.jsx      Subida de plantilla .docx
       FieldEditor.jsx         Editor de campos de plantilla
       JurisdiccionSelector.jsx Dropdown de jurisdicciones
@@ -373,6 +381,28 @@ Todos requieren `Authorization: Bearer <token>` excepto login y health.
 |--------|------|-------------|
 | GET | `/api/tribunales/` | Listar jurisdicciones (hojas del Excel) |
 | POST | `/api/tribunales/refresh` | Forzar recarga del Excel (admin/superadmin) |
+
+### Datos Maestros — Direcciones de Inmuebles
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/direcciones/upload` | Cargar Excel de direcciones (superadmin) |
+| GET | `/api/direcciones/jurisdicciones` | Listar jurisdicciones con inmuebles "en uso" |
+| GET | `/api/direcciones/buscar` | Buscar inmuebles por jurisdicción y texto |
+| GET | `/api/direcciones/count` | Total de direcciones cargadas (superadmin) |
+
+### Datos Maestros — Presupuesto
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/presupuesto/upload` | Cargar Excel de combinaciones presupuestarias (superadmin) |
+| GET | `/api/presupuesto/subtitulos` | Listar subtítulos disponibles |
+| GET | `/api/presupuesto/items` | Listar ítems de un subtítulo |
+| GET | `/api/presupuesto/asignaciones` | Listar asignaciones de subtítulo + ítem |
+| GET | `/api/presupuesto/count` | Total de combinaciones cargadas (superadmin) |
+
+### Historial de Cargas
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/uploads/historial` | Últimas 50 cargas de datos maestros (superadmin) |
 
 ### Health
 | Método | Ruta | Descripción |

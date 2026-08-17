@@ -166,10 +166,10 @@ export default function AdminReviews() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
         {entries.map(([key, value]) => (
           <div key={key} className="py-1">
-            <span className="text-xs font-medium text-[#1a2d56]/50 block">
+            <span className="text-xs font-medium text-[#112d86]/50 block">
               {key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
             </span>
-            <span className="text-sm text-[#1a2d56]">{String(value)}</span>
+            <span className="text-sm text-[#112d86]">{String(value)}</span>
           </div>
         ))}
       </div>
@@ -179,10 +179,10 @@ export default function AdminReviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#1a2d56]">
+        <h1 className="text-2xl font-bold text-[#112d86]">
           Revisión de Borradores
         </h1>
-        <p className="text-sm text-[#1a2d56]/60 mt-1">
+        <p className="text-sm text-[#112d86]/60 mt-1">
           Revise y valide los documentos enviados por los operativos
         </p>
       </div>
@@ -193,52 +193,52 @@ export default function AdminReviews() {
           onClick={() => setFilter("all")}
           className={`p-4 rounded-xl border-2 transition-all text-left ${
             filter === "all"
-              ? "border-[#1a2d56] bg-[#1a2d56]/5"
-              : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/20"
+              ? "border-[#112d86] bg-[#112d86]/5"
+              : "border-[#112d86]/10 bg-white hover:border-[#112d86]/20"
           }`}
         >
-          <p className="text-2xl font-bold text-[#1a2d56]">{reviews.length}</p>
-          <p className="text-xs text-[#1a2d56]/60 mt-1">Total</p>
+          <p className="text-2xl font-bold text-[#112d86]">{reviews.length}</p>
+          <p className="text-xs text-[#112d86]/60 mt-1">Total</p>
         </button>
         <button
           onClick={() => setFilter("pendiente")}
           className={`p-4 rounded-xl border-2 transition-all text-left ${
             filter === "pendiente"
               ? "border-yellow-500 bg-yellow-50"
-              : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/20"
+              : "border-[#112d86]/10 bg-white hover:border-[#112d86]/20"
           }`}
         >
           <p className="text-2xl font-bold text-yellow-600">{countPending}</p>
-          <p className="text-xs text-[#1a2d56]/60 mt-1">Pendientes</p>
+          <p className="text-xs text-[#112d86]/60 mt-1">Pendientes</p>
         </button>
         <button
           onClick={() => setFilter("aprobado")}
           className={`p-4 rounded-xl border-2 transition-all text-left ${
             filter === "aprobado"
               ? "border-green-500 bg-green-50"
-              : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/20"
+              : "border-[#112d86]/10 bg-white hover:border-[#112d86]/20"
           }`}
         >
           <p className="text-2xl font-bold text-green-600">{countApproved}</p>
-          <p className="text-xs text-[#1a2d56]/60 mt-1">Aprobados</p>
+          <p className="text-xs text-[#112d86]/60 mt-1">Aprobados</p>
         </button>
         <button
           onClick={() => setFilter("rechazado")}
           className={`p-4 rounded-xl border-2 transition-all text-left ${
             filter === "rechazado"
               ? "border-red-500 bg-red-50"
-              : "border-[#1a2d56]/10 bg-white hover:border-[#1a2d56]/20"
+              : "border-[#112d86]/10 bg-white hover:border-[#112d86]/20"
           }`}
         >
           <p className="text-2xl font-bold text-red-600">{countRejected}</p>
-          <p className="text-xs text-[#1a2d56]/60 mt-1">Rechazados</p>
+          <p className="text-xs text-[#112d86]/60 mt-1">Rechazados</p>
         </button>
       </div>
 
       {/* Search bar */}
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a2d56]/30"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#112d86]/30"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -255,12 +255,12 @@ export default function AdminReviews() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar por documento o nombre del operativo..."
-          className="w-full pl-10 pr-4 py-2.5 border border-[#1a2d56]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#1a2d56]/20 focus:border-[#1a2d56]/30 bg-white"
+          className="w-full pl-10 pr-4 py-2.5 border border-[#112d86]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#112d86]/20 focus:border-[#112d86]/30 bg-white"
         />
         {search && (
           <button
             onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2d56]/30 hover:text-[#1a2d56]/60 text-sm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#112d86]/30 hover:text-[#112d86]/60 text-sm"
           >
             Limpiar
           </button>
@@ -269,21 +269,21 @@ export default function AdminReviews() {
 
       {/* Reviews table */}
       {loading ? (
-        <div className="text-center py-8 text-[#1a2d56]/50">
+        <div className="text-center py-8 text-[#112d86]/50">
           Cargando revisiones...
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-10 text-center">
-          <p className="text-[#1a2d56]/60">
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-10 text-center">
+          <p className="text-[#112d86]/60">
             {search
               ? `No se encontraron resultados para "${search}".`
               : `No hay borradores ${filter !== "all" ? `con estado "${filter}"` : "para mostrar"}.`}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 overflow-hidden">
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 overflow-hidden">
           <table className="w-full">
-            <thead style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}>
+            <thead style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}>
               <tr>
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider">
                   Documento
@@ -309,14 +309,14 @@ export default function AdminReviews() {
               {filtered.map((r) => (
                 <Fragment key={r.id}>
                   <tr
-                    className={`border-t border-[#1a2d56]/5 hover:bg-[#1a2d56]/[0.02] cursor-pointer ${
-                      expandedId === r.id ? "bg-[#1a2d56]/[0.03]" : ""
+                    className={`border-t border-[#112d86]/5 hover:bg-[#112d86]/[0.02] cursor-pointer ${
+                      expandedId === r.id ? "bg-[#112d86]/[0.03]" : ""
                     }`}
                     onClick={() => handleExpand(r)}
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-1.5">
-                        <div className="font-medium text-[#1a2d56] text-sm">
+                        <div className="font-medium text-[#112d86] text-sm">
                           {r.document_name}
                         </div>
                         {r.submission_number > 1 && (
@@ -328,20 +328,20 @@ export default function AdminReviews() {
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[#1a2d56]/40 mt-0.5">
+                      <div className="text-xs text-[#112d86]/40 mt-0.5">
                         {r.document_type === "base" ? "Base" : "Cronograma"}
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-sm text-[#1a2d56]">
+                      <div className="text-sm text-[#112d86]">
                         {r.submitter_name}
                       </div>
-                      <div className="text-xs text-[#1a2d56]/40">
+                      <div className="text-xs text-[#112d86]/40">
                         {r.submitter_email}
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-xs text-[#1a2d56]/60">
-                      {r.jurisdiccion || <span className="text-[#1a2d56]/25">—</span>}
+                    <td className="py-3 px-4 text-xs text-[#112d86]/60">
+                      {r.jurisdiccion || <span className="text-[#112d86]/25">—</span>}
                     </td>
                     <td className="py-3 px-4">
                       <span
@@ -356,7 +356,7 @@ export default function AdminReviews() {
                         {r.status.charAt(0).toUpperCase() + r.status.slice(1)}
                       </span>
                       {r.comment && (
-                        <div className="text-xs text-[#1a2d56]/40 mt-1 italic">
+                        <div className="text-xs text-[#112d86]/40 mt-1 italic">
                           {r.comment}
                         </div>
                       )}
@@ -367,7 +367,7 @@ export default function AdminReviews() {
                         </div>
                       )}
                     </td>
-                    <td className="py-3 px-4 text-xs text-[#1a2d56]/40">
+                    <td className="py-3 px-4 text-xs text-[#112d86]/40">
                       {new Date(r.submitted_at).toLocaleDateString("es-CL", {
                         day: "2-digit",
                         month: "2-digit",
@@ -402,7 +402,7 @@ export default function AdminReviews() {
                                 )
                               }
                               className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
-                              style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                              style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
                               title="Descargar Word para revisar y editar"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -459,26 +459,26 @@ export default function AdminReviews() {
                     <tr key={`${r.id}-detail`}>
                       <td
                         colSpan={6}
-                        className="bg-[#1a2d56]/[0.02] px-6 py-4 border-t border-[#1a2d56]/5"
+                        className="bg-[#112d86]/[0.02] px-6 py-4 border-t border-[#112d86]/5"
                       >
                         <div className="space-y-3">
-                          <h4 className="text-sm font-semibold text-[#1a2d56]">
+                          <h4 className="text-sm font-semibold text-[#112d86]">
                             Datos ingresados por el operativo
                           </h4>
                           {r.field_values &&
                           Object.keys(r.field_values).length > 0 ? (
                             renderFieldValues(r.field_values)
                           ) : (
-                            <p className="text-xs text-[#1a2d56]/40 italic">
+                            <p className="text-xs text-[#112d86]/40 italic">
                               No hay datos de formulario disponibles para este
                               documento.
                             </p>
                           )}
                           {r.reviewer_name && (
-                            <div className="pt-2 border-t border-[#1a2d56]/10">
-                              <span className="text-xs text-[#1a2d56]/50">
+                            <div className="pt-2 border-t border-[#112d86]/10">
+                              <span className="text-xs text-[#112d86]/50">
                                 Revisado por:{" "}
-                                <span className="font-medium text-[#1a2d56]">
+                                <span className="font-medium text-[#112d86]">
                                   {r.reviewer_name}
                                 </span>
                                 {r.reviewed_at && (
@@ -501,8 +501,8 @@ export default function AdminReviews() {
                           )}
                           {/* Traceability timeline */}
                           {eventsCache[r.document_id] && eventsCache[r.document_id].length > 0 && (
-                            <div className="pt-2 border-t border-[#1a2d56]/10">
-                              <h4 className="text-xs font-semibold text-[#1a2d56]/60 mb-2">Trazabilidad del documento</h4>
+                            <div className="pt-2 border-t border-[#112d86]/10">
+                              <h4 className="text-xs font-semibold text-[#112d86]/60 mb-2">Trazabilidad del documento</h4>
                               <div className="border-l-2 border-[#c8a84e]/40 pl-3 space-y-2">
                                 {eventsCache[r.document_id].map((ev) => (
                                   <div key={ev.id} className="flex items-start gap-2">
@@ -517,13 +517,13 @@ export default function AdminReviews() {
                                       "bg-gray-400"
                                     }`} />
                                     <div className="min-w-0">
-                                      <p className="text-xs text-[#1a2d56] leading-tight">
+                                      <p className="text-xs text-[#112d86] leading-tight">
                                         <span className="font-semibold capitalize">{ev.action}</span>
-                                        {ev.actor_name && <span className="text-[#1a2d56]/50"> — {ev.actor_name}</span>}
-                                        {ev.actor_role && <span className="text-[#1a2d56]/40"> ({ev.actor_role})</span>}
+                                        {ev.actor_name && <span className="text-[#112d86]/50"> — {ev.actor_name}</span>}
+                                        {ev.actor_role && <span className="text-[#112d86]/40"> ({ev.actor_role})</span>}
                                       </p>
-                                      {ev.detail && <p className="text-[10px] text-[#1a2d56]/40 leading-tight">{ev.detail}</p>}
-                                      <p className="text-[10px] text-[#1a2d56]/30">
+                                      {ev.detail && <p className="text-[10px] text-[#112d86]/40 leading-tight">{ev.detail}</p>}
+                                      <p className="text-[10px] text-[#112d86]/30">
                                         {new Date(ev.created_at).toLocaleDateString("es-CL", {
                                           day: "2-digit", month: "2-digit", year: "numeric",
                                           hour: "2-digit", minute: "2-digit",
@@ -550,14 +550,14 @@ export default function AdminReviews() {
       {showPreview && previewUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2d56]/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#112d86]/10">
               <div>
-                <h3 className="text-lg font-semibold text-[#1a2d56]">Revisión de documento</h3>
-                <p className="text-xs text-[#1a2d56]/40">Los campos ingresados están destacados en amarillo</p>
+                <h3 className="text-lg font-semibold text-[#112d86]">Revisión de documento</h3>
+                <p className="text-xs text-[#112d86]/40">Los campos ingresados están destacados en amarillo</p>
               </div>
               <button
                 onClick={() => { setShowPreview(false); URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }}
-                className="text-[#1a2d56]/40 hover:text-[#1a2d56] text-xl font-bold px-2"
+                className="text-[#112d86]/40 hover:text-[#112d86] text-xl font-bold px-2"
               >
                 X
               </button>
@@ -577,25 +577,25 @@ export default function AdminReviews() {
       {commentModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 space-y-4">
-            <h3 className="text-lg font-semibold text-[#1a2d56]">
+            <h3 className="text-lg font-semibold text-[#112d86]">
               Rechazar borrador
             </h3>
             <div>
-              <label className="block text-sm font-medium text-[#1a2d56] mb-1">
+              <label className="block text-sm font-medium text-[#112d86] mb-1">
                 Comentario (opcional)
               </label>
               <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
-                className="w-full border border-[#1a2d56]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#1a2d56]/30"
+                className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
                 placeholder="Indique el motivo del rechazo..."
               />
             </div>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setCommentModal(null)}
-                className="px-4 py-2 text-sm text-[#1a2d56]/60 hover:text-[#1a2d56] transition-colors"
+                className="px-4 py-2 text-sm text-[#112d86]/60 hover:text-[#112d86] transition-colors"
               >
                 Cancelar
               </button>

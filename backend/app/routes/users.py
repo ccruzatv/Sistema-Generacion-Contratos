@@ -5,7 +5,7 @@ from ..database import get_db
 from ..models import User
 from ..schemas import UserCreate, UserUpdate, UserResponse
 from ..services.auth import require_admin, require_superadmin, hash_password
-from ..services.email_service import send_invitation_email
+from ..services.email_service import send_invitation_email, send_password_change_email
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -72,6 +72,7 @@ def update_user(
         user.is_active = data.is_active
     if data.password is not None:
         user.password_hash = hash_password(data.password)
+        send_password_change_email(user.email, user.name, data.password)
 
     db.commit()
     db.refresh(user)

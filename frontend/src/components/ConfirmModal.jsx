@@ -23,13 +23,13 @@ export function ConfirmProvider({ children }) {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9998] p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 flex flex-col gap-4">
             <div>
-              <h3 className="text-base font-bold text-[#1a2d56]">{modal.title}</h3>
-              <p className="text-sm text-[#1a2d56]/70 mt-1 leading-snug">{modal.message}</p>
+              <h3 className="text-base font-bold text-[#112d86]">{modal.title}</h3>
+              <p className="text-sm text-[#112d86]/70 mt-1 leading-snug">{modal.message}</p>
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => handleClose(false)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-[#1a2d56]/60 hover:bg-[#1a2d56]/5 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium text-[#112d86]/60 hover:bg-[#112d86]/5 transition-colors"
               >
                 Cancelar
               </button>
@@ -38,7 +38,7 @@ export function ConfirmProvider({ children }) {
                 className={`px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:shadow-md ${
                   modal.danger
                     ? "bg-red-500 hover:bg-red-600"
-                    : "bg-[#1a2d56] hover:bg-[#243b6e]"
+                    : "bg-[#112d86] hover:bg-[#1a3a9e]"
                 }`}
               >
                 {modal.confirmLabel}

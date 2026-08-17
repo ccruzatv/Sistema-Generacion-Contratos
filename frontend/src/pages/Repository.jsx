@@ -246,11 +246,11 @@ export default function Repository() {
     const history = getSubmissionHistory(doc.id);
 
     return (
-      <tr key={doc.id} className="border-t border-[#1a2d56]/5 hover:bg-[#1a2d56]/[0.02] align-top">
+      <tr key={doc.id} className="border-t border-[#112d86]/5 hover:bg-[#112d86]/[0.02] align-top">
         <td className="py-3 px-4">
-          <div className="font-medium text-[#1a2d56] text-sm">{doc.document_name}</div>
+          <div className="font-medium text-[#112d86] text-sm">{doc.document_name}</div>
           {doc.template_name && (
-            <div className="text-xs text-[#1a2d56]/40 mt-0.5">Plantilla: {doc.template_name}</div>
+            <div className="text-xs text-[#112d86]/40 mt-0.5">Plantilla: {doc.template_name}</div>
           )}
           {doc.bundle_id && (
             <a
@@ -265,15 +265,15 @@ export default function Repository() {
           )}
         </td>
         <td className="py-3 px-4">
-          <span className="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#1a2d56]/10 text-[#1a2d56]">
+          <span className="inline-block text-xs font-medium px-2.5 py-0.5 rounded-full bg-[#112d86]/10 text-[#112d86]">
             Documento
           </span>
         </td>
-        <td className="py-3 px-4 text-xs text-[#1a2d56]/50">{doc.category_name || "—"}</td>
-        <td className="py-3 px-4 text-xs text-[#1a2d56]/60">
-          {doc.jurisdiccion || <span className="text-[#1a2d56]/25">—</span>}
+        <td className="py-3 px-4 text-xs text-[#112d86]/50">{doc.category_name || "—"}</td>
+        <td className="py-3 px-4 text-xs text-[#112d86]/60">
+          {doc.jurisdiccion || <span className="text-[#112d86]/25">—</span>}
         </td>
-        <td className="py-3 px-4 text-xs text-[#1a2d56]/40">
+        <td className="py-3 px-4 text-xs text-[#112d86]/40">
           {new Date(doc.created_at).toLocaleDateString("es-CL", {
             day: "2-digit", month: "2-digit", year: "numeric",
             hour: "2-digit", minute: "2-digit",
@@ -285,7 +285,7 @@ export default function Repository() {
             className="flex items-center gap-1.5 group"
             title="Ver trazabilidad del documento"
           >
-            <svg className={`w-3.5 h-3.5 text-[#1a2d56]/40 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+            <svg className={`w-3.5 h-3.5 text-[#112d86]/40 transition-transform ${isExpanded ? "rotate-90" : ""}`}
               fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -315,13 +315,13 @@ export default function Repository() {
                   </div>
                 )}
                 {!sub && (
-                  <span className="inline-block bg-gray-100 text-[#1a2d56]/50 py-1 px-2.5 rounded-full text-xs font-medium border border-gray-200">
+                  <span className="inline-block bg-gray-100 text-[#112d86]/50 py-1 px-2.5 rounded-full text-xs font-medium border border-gray-200">
                     Borrador
                   </span>
                 )}
               </>
             ) : (
-              <span className="inline-block bg-gray-100 text-[#1a2d56]/50 py-1 px-2.5 rounded-full text-xs font-medium border border-gray-200">
+              <span className="inline-block bg-gray-100 text-[#112d86]/50 py-1 px-2.5 rounded-full text-xs font-medium border border-gray-200">
                 Ver trazabilidad
               </span>
             )}
@@ -329,7 +329,7 @@ export default function Repository() {
           {isExpanded && history.length > 0 && (
             <div className="mt-2 space-y-1.5">
               {history.map((s) => (
-                <div key={s.id} className="flex items-start gap-2 bg-[#1a2d56]/[0.02] border border-[#1a2d56]/8 rounded-lg px-2.5 py-2">
+                <div key={s.id} className="flex items-start gap-2 bg-[#112d86]/[0.02] border border-[#112d86]/8 rounded-lg px-2.5 py-2">
                   <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200 flex-shrink-0">
                     Envío #{s.submission_number}
                   </span>
@@ -342,14 +342,14 @@ export default function Repository() {
                       }`}>
                         {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
                       </span>
-                      <span className="text-[10px] text-[#1a2d56]/30">
+                      <span className="text-[10px] text-[#112d86]/30">
                         {new Date(s.submitted_at).toLocaleDateString("es-CL", {
                           day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit",
                         })}
                       </span>
                     </div>
                     {s.submitter_comment && (
-                      <p className="text-[10px] text-[#1a2d56]/60 mt-1">
+                      <p className="text-[10px] text-[#112d86]/60 mt-1">
                         <span className="font-semibold">Mi comentario:</span> {s.submitter_comment}
                       </p>
                     )}
@@ -366,7 +366,7 @@ export default function Repository() {
           {isExpanded && (
             <div className="mt-2 ml-1 border-l-2 border-[#c8a84e]/40 pl-3 space-y-2 py-1">
               {events.length === 0 ? (
-                <p className="text-xs text-[#1a2d56]/40 italic">Sin registros de trazabilidad.</p>
+                <p className="text-xs text-[#112d86]/40 italic">Sin registros de trazabilidad.</p>
               ) : (
                 events.map((ev) => (
                   <div key={ev.id} className="flex items-start gap-2">
@@ -380,13 +380,13 @@ export default function Repository() {
                       "bg-gray-400"
                     }`} />
                     <div className="min-w-0">
-                      <p className="text-xs text-[#1a2d56] leading-tight">
+                      <p className="text-xs text-[#112d86] leading-tight">
                         <span className="font-semibold capitalize">{ev.action}</span>
-                        {ev.actor_name && <span className="text-[#1a2d56]/50"> — {ev.actor_name}</span>}
-                        {ev.actor_role && <span className="text-[#1a2d56]/40"> ({ev.actor_role})</span>}
+                        {ev.actor_name && <span className="text-[#112d86]/50"> — {ev.actor_name}</span>}
+                        {ev.actor_role && <span className="text-[#112d86]/40"> ({ev.actor_role})</span>}
                       </p>
-                      {ev.detail && <p className="text-[10px] text-[#1a2d56]/40 leading-tight">{ev.detail}</p>}
-                      <p className="text-[10px] text-[#1a2d56]/30">
+                      {ev.detail && <p className="text-[10px] text-[#112d86]/40 leading-tight">{ev.detail}</p>}
+                      <p className="text-[10px] text-[#112d86]/30">
                         {new Date(ev.created_at).toLocaleDateString("es-CL", {
                           day: "2-digit", month: "2-digit", year: "numeric",
                           hour: "2-digit", minute: "2-digit",
@@ -417,7 +417,7 @@ export default function Repository() {
                 <button
                   onClick={() => handleDownload(getRepositoryDocxUrl(doc.docx_filename), doc.docx_filename)}
                   className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
-                  style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                  style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
                   title="Descargar Word"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -454,10 +454,10 @@ export default function Repository() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#1a2d56]">
+        <h1 className="text-2xl font-bold text-[#112d86]">
           {isOp ? "Mando de Control" : "Repositorio Personal"}
         </h1>
-        <p className="text-sm text-[#1a2d56]/60 mt-1">
+        <p className="text-sm text-[#112d86]/60 mt-1">
           {isOp
             ? "Resumen ejecutivo de sus Bases y Cronogramas"
             : "Historial de documentos generados en su cuenta"}
@@ -468,7 +468,7 @@ export default function Repository() {
       {isOp && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { key: "all",       label: "Total",           count: statusCounts.pendiente + statusCounts.aprobado + statusCounts.rechazado, border: "border-[#1a2d56]/10",  activeBorder: "border-[#1a2d56]",  bg: "bg-white",       activeBg: "bg-[#1a2d56]/5",   text: "text-[#1a2d56]",  subText: "text-[#1a2d56]/60"   },
+            { key: "all",       label: "Total",           count: statusCounts.pendiente + statusCounts.aprobado + statusCounts.rechazado, border: "border-[#112d86]/10",  activeBorder: "border-[#112d86]",  bg: "bg-white",       activeBg: "bg-[#112d86]/5",   text: "text-[#112d86]",  subText: "text-[#112d86]/60"   },
             { key: "pendiente", label: "En validación",   count: statusCounts.pendiente,   border: "border-yellow-200",    activeBorder: "border-yellow-500", bg: "bg-yellow-50",   activeBg: "bg-yellow-100",    text: "text-yellow-700", subText: "text-yellow-700/80"  },
             { key: "aprobado",  label: "Aprobados",       count: statusCounts.aprobado,    border: "border-green-200",     activeBorder: "border-green-600",  bg: "bg-green-50",    activeBg: "bg-green-100",     text: "text-green-700",  subText: "text-green-700/80"   },
             { key: "rechazado", label: "Rechazados",      count: statusCounts.rechazado,   border: "border-red-200",       activeBorder: "border-red-500",    bg: "bg-red-50",      activeBg: "bg-red-100",       text: "text-red-700",    subText: "text-red-700/80"     },
@@ -500,15 +500,15 @@ export default function Repository() {
       {/* Expediente filter pills */}
       {expedientes.length > 0 && (
         <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs font-semibold text-[#1a2d56]/50 uppercase tracking-wider mr-1">Expediente:</span>
+          <span className="text-xs font-semibold text-[#112d86]/50 uppercase tracking-wider mr-1">Expediente:</span>
           {[{ label: "Todos", value: "all" }, ...expedientes.map((e) => ({ label: `N° ${e.correlativo}`, value: String(e.correlativo) })), { label: "Sin expediente", value: "sin-expediente" }].map(({ label, value }) => (
             <button
               key={value}
               onClick={() => setExpedienteFilter(value)}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
                 expedienteFilter === value
-                  ? "bg-[#1a2d56] text-white border-[#1a2d56]"
-                  : "bg-white text-[#1a2d56]/60 border-[#1a2d56]/20 hover:border-[#1a2d56]/40"
+                  ? "bg-[#112d86] text-white border-[#112d86]"
+                  : "bg-white text-[#112d86]/60 border-[#112d86]/20 hover:border-[#112d86]/40"
               }`}
             >
               {label}
@@ -520,7 +520,7 @@ export default function Repository() {
       {/* Search + category/jurisdicción filters */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1a2d56]/30"
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#112d86]/30"
             fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -530,11 +530,11 @@ export default function Repository() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nombre de documento..."
-            className="w-full pl-10 pr-4 py-2.5 border border-[#1a2d56]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#1a2d56]/20 focus:border-[#1a2d56]/30 bg-white"
+            className="w-full pl-10 pr-4 py-2.5 border border-[#112d86]/15 rounded-xl text-sm focus:ring-2 focus:ring-[#112d86]/20 focus:border-[#112d86]/30 bg-white"
           />
           {search && (
             <button onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#1a2d56]/30 hover:text-[#1a2d56]/60 text-sm">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#112d86]/30 hover:text-[#112d86]/60 text-sm">
               Limpiar
             </button>
           )}
@@ -543,7 +543,7 @@ export default function Repository() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="py-2.5 px-3 border border-[#1a2d56]/15 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1a2d56]/20 focus:border-[#1a2d56]/30 text-[#1a2d56]"
+            className="py-2.5 px-3 border border-[#112d86]/15 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#112d86]/20 focus:border-[#112d86]/30 text-[#112d86]"
           >
             <option value="all">Todas las categorías</option>
             {categoryOptions.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -553,7 +553,7 @@ export default function Repository() {
           <select
             value={jurisdiccionFilter}
             onChange={(e) => setJurisdiccionFilter(e.target.value)}
-            className="py-2.5 px-3 border border-[#1a2d56]/15 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#1a2d56]/20 focus:border-[#1a2d56]/30 text-[#1a2d56]"
+            className="py-2.5 px-3 border border-[#112d86]/15 rounded-xl text-sm bg-white focus:ring-2 focus:ring-[#112d86]/20 focus:border-[#112d86]/30 text-[#112d86]"
           >
             <option value="all">Todas las jurisdicciones</option>
             {jurisdiccionOptions.map((j) => <option key={j} value={j}>{j}</option>)}
@@ -563,14 +563,14 @@ export default function Repository() {
 
       {/* Documents table */}
       {loading ? (
-        <div className="text-center py-8 text-[#1a2d56]/50">Cargando documentos...</div>
+        <div className="text-center py-8 text-[#112d86]/50">Cargando documentos...</div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-10 text-center">
-          <svg className="w-12 h-12 mx-auto text-[#1a2d56]/20 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-10 text-center">
+          <svg className="w-12 h-12 mx-auto text-[#112d86]/20 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
               d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
-          <p className="text-[#1a2d56]/60 text-sm">
+          <p className="text-[#112d86]/60 text-sm">
             {search
               ? `No se encontraron documentos para "${search}".`
               : "Aún no ha generado documentos."}
@@ -590,7 +590,7 @@ export default function Repository() {
             seen.get(key).docs.push(doc);
           }
           const tableHead = (
-            <thead style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}>
+            <thead style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}>
               <tr>
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider">Documento</th>
                 <th className="py-3.5 px-4 text-left text-[11px] font-semibold text-white/90 uppercase tracking-wider w-28">Tipo</th>
@@ -604,7 +604,7 @@ export default function Repository() {
           );
           if (groups.length === 1) {
             return (
-              <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 overflow-hidden">
+              <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 overflow-hidden">
                 <table className="w-full">{tableHead}<tbody>{seen.get(groups[0]).docs.map((doc) => renderDocRow(doc))}</tbody></table>
               </div>
             );
@@ -614,20 +614,20 @@ export default function Repository() {
               {groups.map((key) => {
                 const group = seen.get(key);
                 return (
-                  <div key={key} className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 overflow-hidden">
+                  <div key={key} className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 overflow-hidden">
                     {key !== "__sin__" ? (
                       <button
                         onClick={() => navigate(`/expediente/${group.bundle_id}`)}
-                        className="w-full flex items-center gap-3 px-5 py-3 bg-[#1a2d56]/[0.04] hover:bg-[#1a2d56]/[0.08] border-b border-[#1a2d56]/10 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-5 py-3 bg-[#112d86]/[0.04] hover:bg-[#112d86]/[0.08] border-b border-[#112d86]/10 transition-colors text-left"
                       >
                         <svg className="w-4 h-4 text-[#c8a84e] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                        <span className="text-sm font-bold text-[#1a2d56]">Expediente N° {group.correlativo}</span>
-                        {group.category_name && <span className="text-xs text-[#1a2d56]/50">— {group.category_name}</span>}
-                        <svg className="w-3.5 h-3.5 text-[#1a2d56]/30 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <span className="text-sm font-bold text-[#112d86]">Expediente N° {group.correlativo}</span>
+                        {group.category_name && <span className="text-xs text-[#112d86]/50">— {group.category_name}</span>}
+                        <svg className="w-3.5 h-3.5 text-[#112d86]/30 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                       </button>
                     ) : (
-                      <div className="flex items-center gap-3 px-5 py-3 bg-[#1a2d56]/[0.02] border-b border-[#1a2d56]/10">
-                        <span className="text-sm font-semibold text-[#1a2d56]/50">Sin expediente asociado</span>
+                      <div className="flex items-center gap-3 px-5 py-3 bg-[#112d86]/[0.02] border-b border-[#112d86]/10">
+                        <span className="text-sm font-semibold text-[#112d86]/50">Sin expediente asociado</span>
                       </div>
                     )}
                     <table className="w-full">{tableHead}<tbody>{group.docs.map((doc) => renderDocRow(doc))}</tbody></table>
@@ -643,14 +643,14 @@ export default function Repository() {
       {showPreview && previewUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2d56]/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#112d86]/10">
               <div>
-                <h3 className="text-lg font-semibold text-[#1a2d56]">Vista previa del documento</h3>
-                <p className="text-xs text-[#1a2d56]/40">Los campos ingresados están destacados en amarillo</p>
+                <h3 className="text-lg font-semibold text-[#112d86]">Vista previa del documento</h3>
+                <p className="text-xs text-[#112d86]/40">Los campos ingresados están destacados en amarillo</p>
               </div>
               <button
                 onClick={() => { setShowPreview(false); URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }}
-                className="text-[#1a2d56]/40 hover:text-[#1a2d56] text-xl font-bold px-2"
+                className="text-[#112d86]/40 hover:text-[#112d86] text-xl font-bold px-2"
               >
                 ✕
               </button>

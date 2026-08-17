@@ -34,7 +34,7 @@ function ToastItem({ toast, onRemove }) {
   const styles = {
     success: { bar: "bg-green-500", icon: "✓", bg: "bg-white border-green-200", text: "text-green-700" },
     error:   { bar: "bg-red-500",   icon: "✕", bg: "bg-white border-red-200",   text: "text-red-700"   },
-    info:    { bar: "bg-[#1a2d56]", icon: "i", bg: "bg-white border-[#1a2d56]/20", text: "text-[#1a2d56]" },
+    info:    { bar: "bg-[#112d86]", icon: "i", bg: "bg-white border-[#112d86]/20", text: "text-[#112d86]" },
     warning: { bar: "bg-[#c8a84e]", icon: "!", bg: "bg-white border-[#c8a84e]/30", text: "text-[#9a7a28]" },
   };
   const s = styles[toast.type] || styles.info;

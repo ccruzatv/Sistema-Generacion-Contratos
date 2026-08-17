@@ -257,6 +257,11 @@ export async function getPendingReviews() {
   return res.json();
 }
 
+export async function getReviewedHistory() {
+  const res = await request("/drafts/reviewed");
+  return res.json();
+}
+
 export async function reviewDraft(submissionId, status, comment = "") {
   const res = await request(`/drafts/${submissionId}/review`, {
     method: "PUT",
@@ -354,6 +359,76 @@ export async function saveBundleItemDraft(bundleId, itemId, values) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ values }),
   });
+  return res.json();
+}
+
+// ── Datos Maestros: Direcciones ──
+export async function uploadDireccionesExcel(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await request("/direcciones/upload", {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+export async function getDireccionesJurisdicciones() {
+  const res = await request("/direcciones/jurisdicciones");
+  return res.json();
+}
+
+export async function buscarDirecciones(jurisdiccion, q) {
+  const params = new URLSearchParams({ jurisdiccion, q: q || "" });
+  const res = await request(`/direcciones/buscar?${params.toString()}`);
+  return res.json();
+}
+
+export async function getDireccionesCount() {
+  const res = await request("/direcciones/count");
+  return res.json();
+}
+
+// ── Datos Maestros: Presupuesto ──
+export async function uploadPresupuestoExcel(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await request("/presupuesto/upload", {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+export async function getSubtitulos() {
+  const res = await request("/presupuesto/subtitulos");
+  return res.json();
+}
+
+export async function getItemsPresupuesto(subtitulo) {
+  const params = new URLSearchParams({ subtitulo });
+  const res = await request(`/presupuesto/items?${params.toString()}`);
+  return res.json();
+}
+
+export async function getAsignacionesPresupuesto(subtitulo, item) {
+  const params = new URLSearchParams({ subtitulo, item });
+  const res = await request(`/presupuesto/asignaciones?${params.toString()}`);
+  return res.json();
+}
+
+export async function getPresupuestoCount() {
+  const res = await request("/presupuesto/count");
+  return res.json();
+}
+
+export async function getHistorialUploads() {
+  const res = await request("/uploads/historial");
+  return res.json();
+}
+
+export async function reparseAllTemplates() {
+  const res = await request("/templates/reparse-all", { method: "POST" });
   return res.json();
 }
 

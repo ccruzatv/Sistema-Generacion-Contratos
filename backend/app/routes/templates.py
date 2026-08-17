@@ -198,6 +198,32 @@ def reparse_template(
     return _to_detail_response(template)
 
 
+@router.post("/reparse-all")
+def reparse_all_templates(
+    admin: User = Depends(require_superadmin),
+    db: Session = Depends(get_db),
+):
+    templates = db.query(Template).all()
+    ok, failed = [], []
+
+    for template in templates:
+        try:
+            detected_fields = extract_placeholders(_resolve_path(template.file_path))
+            db.query(TemplateField).filter(TemplateField.template_id == template.id).delete()
+            for field_data in detected_fields:
+                db.add(TemplateField(template_id=template.id, **field_data))
+            ok.append(template.name)
+        except Exception as e:
+            failed.append({"name": template.name, "error": str(e)})
+
+    db.commit()
+    return {
+        "message": f"{len(ok)} plantillas re-detectadas correctamente" + (f", {len(failed)} con errores" if failed else ""),
+        "updated": ok,
+        "failed": failed,
+    }
+
+
 @router.put("/{template_id}/fields/{field_id}", response_model=TemplateResponse)
 def update_field(
     template_id: int,

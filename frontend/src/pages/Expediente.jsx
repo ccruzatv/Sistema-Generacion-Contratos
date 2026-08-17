@@ -175,14 +175,14 @@ export default function Expediente() {
   }
 
   if (loading) {
-    return <div className="text-center py-12 text-[#1a2d56]/50">Cargando expediente...</div>;
+    return <div className="text-center py-12 text-[#112d86]/50">Cargando expediente...</div>;
   }
 
   if (error || !bundle) {
     return (
       <div className="text-center py-12">
         <p className="text-red-600 text-sm">{error || "Expediente no encontrado"}</p>
-        <button onClick={() => navigate("/generate")} className="mt-4 text-[#1a2d56] text-sm hover:underline">
+        <button onClick={() => navigate("/generate")} className="mt-4 text-[#112d86] text-sm hover:underline">
           Volver a Expedientes
         </button>
       </div>
@@ -206,7 +206,7 @@ export default function Expediente() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate("/generate")}
-          className="text-[#1a2d56]/40 hover:text-[#1a2d56] transition-colors"
+          className="text-[#112d86]/40 hover:text-[#112d86] transition-colors"
           title="Volver a expedientes"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -214,26 +214,26 @@ export default function Expediente() {
           </svg>
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-[#1a2d56]">
+          <h1 className="text-2xl font-bold text-[#112d86]">
             Expediente N° {bundle.correlativo}
           </h1>
-          <p className="text-sm text-[#1a2d56]/60 mt-0.5">
+          <p className="text-sm text-[#112d86]/60 mt-0.5">
             {bundle.category_name}
             {bundle.nombre_licitacion && <span> — {bundle.nombre_licitacion}</span>}
-            {bundle.jurisdiccion && <span className="ml-2 text-[#1a2d56]/40">· {bundle.jurisdiccion}</span>}
+            {bundle.jurisdiccion && <span className="ml-2 text-[#112d86]/40">· {bundle.jurisdiccion}</span>}
           </p>
         </div>
       </div>
 
       {/* Progress card */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 p-5">
+      <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-medium text-[#1a2d56]">Progreso del expediente</span>
+          <span className="text-sm font-medium text-[#112d86]">Progreso del expediente</span>
           <span className={`text-sm font-bold ${allDone ? "text-green-600" : "text-[#c8a84e]"}`}>
             {completedCount}/{totalCount} documentos
           </span>
         </div>
-        <div className="h-2 bg-[#1a2d56]/8 rounded-full overflow-hidden">
+        <div className="h-2 bg-[#112d86]/8 rounded-full overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
@@ -252,8 +252,8 @@ export default function Expediente() {
       </div>
 
       {/* Checklist */}
-      <div className="bg-white rounded-xl shadow-sm border border-[#1a2d56]/10 overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-[#1a2d56]/8 flex items-center justify-between gap-3" style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}>
+      <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-[#112d86]/8 flex items-center justify-between gap-3" style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}>
           <h2 className="text-sm font-semibold text-white">Listado de Contratos</h2>
           <div className="relative">
             <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +268,7 @@ export default function Expediente() {
             />
           </div>
         </div>
-        <div className="divide-y divide-[#1a2d56]/5">
+        <div className="divide-y divide-[#112d86]/5">
           {mainItems
             .filter((item) => !search || item.template_name.toLowerCase().includes(search.toLowerCase()))
             .map((item, idx) => {
@@ -284,7 +284,7 @@ export default function Expediente() {
                     ? "bg-red-100 text-red-700 border border-red-300"
                     : item.is_completed
                     ? "bg-green-100 text-green-700 border border-green-300"
-                    : "bg-[#1a2d56]/8 text-[#1a2d56]/50 border border-[#1a2d56]/15"
+                    : "bg-[#112d86]/8 text-[#112d86]/50 border border-[#112d86]/15"
                 }`}>
                   {isRejected ? (
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
@@ -301,7 +301,7 @@ export default function Expediente() {
 
                 {/* Template name */}
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${isRejected ? "text-red-700" : item.is_completed ? "text-green-700" : "text-[#1a2d56]"}`}>
+                  <p className={`text-sm font-medium ${isRejected ? "text-red-700" : item.is_completed ? "text-green-700" : "text-[#112d86]"}`}>
                     {item.template_name}
                   </p>
                   {item.is_approved ? (
@@ -334,7 +334,7 @@ export default function Expediente() {
                       <button
                         onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)}
                         className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
-                        style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                        style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
                         title="Descargar Word"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -366,7 +366,7 @@ export default function Expediente() {
                       <button
                         onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)}
                         className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
-                        style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+                        style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
                         title="Descargar Word"
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -406,7 +406,7 @@ export default function Expediente() {
                       )}
                       <button
                         onClick={() => handleGenerate(item)}
-                        className="inline-flex items-center gap-1 bg-[#1a2d56]/8 text-[#1a2d56] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/15 transition-colors"
+                        className="inline-flex items-center gap-1 bg-[#112d86]/8 text-[#112d86] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#112d86]/15 transition-colors"
                         title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}
                       >
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
@@ -439,7 +439,7 @@ export default function Expediente() {
                         onClick={() => handleGenerate(item)}
                         className="inline-flex items-center gap-1.5 text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
                         style={{ background: item.draft_values && Object.keys(item.draft_values).length > 0
-                          ? "linear-gradient(135deg, #1a2d56, #243b6e)"
+                          ? "linear-gradient(135deg, #112d86, #1a3a9e)"
                           : "linear-gradient(135deg, #c8a84e, #b09640)"
                         }}
                       >
@@ -461,7 +461,7 @@ export default function Expediente() {
                       </button>
                     )
                     ) : (
-                      <span className="text-xs text-[#1a2d56]/40 italic">Sin plantilla asignada</span>
+                      <span className="text-xs text-[#112d86]/40 italic">Sin plantilla asignada</span>
                     )
                   }
                 </div>
@@ -512,7 +512,7 @@ export default function Expediente() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-sm font-medium ${isRejected ? "text-red-700" : item.is_completed ? "text-green-700" : "text-[#1a2d56]"}`}>
+                      <p className={`text-sm font-medium ${isRejected ? "text-red-700" : item.is_completed ? "text-green-700" : "text-[#112d86]"}`}>
                         {item.template_name}
                       </p>
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-[#c8a84e]/15 text-[#7a5c1e] border border-[#c8a84e]/30 flex-shrink-0">
@@ -543,7 +543,7 @@ export default function Expediente() {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {item.is_approved && item.docx_filename ? (
                       <>
-                        <button onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }} title="Descargar Word">
+                        <button onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }} title="Descargar Word">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                           Word
                         </button>
@@ -560,7 +560,7 @@ export default function Expediente() {
                       </>
                     ) : item.is_completed && item.docx_filename ? (
                       <>
-                        <button onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }} title="Descargar Word">
+                        <button onClick={() => handleDownload(getRepositoryDocxUrl(item.docx_filename), item.docx_filename)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }} title="Descargar Word">
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                           Word
                         </button>
@@ -580,7 +580,7 @@ export default function Expediente() {
                             Enviar
                           </button>
                         )}
-                        <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1 bg-[#1a2d56]/8 text-[#1a2d56] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#1a2d56]/15 transition-colors" title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}>
+                        <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1 bg-[#112d86]/8 text-[#112d86] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#112d86]/15 transition-colors" title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
                           {isRejected ? "Reeditar" : "Regenerar"}
                         </button>
@@ -591,7 +591,7 @@ export default function Expediente() {
                           {generatingId === item.id ? <><svg className="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Generando...</> : <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>Generar</>}
                         </button>
                       ) : (
-                      <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1.5 text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: item.draft_values && Object.keys(item.draft_values).length > 0 ? "linear-gradient(135deg, #1a2d56, #243b6e)" : "linear-gradient(135deg, #c8a84e, #b09640)" }}>
+                      <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1.5 text-white py-1.5 px-3 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: item.draft_values && Object.keys(item.draft_values).length > 0 ? "linear-gradient(135deg, #112d86, #1a3a9e)" : "linear-gradient(135deg, #c8a84e, #b09640)" }}>
                         {item.draft_values && Object.keys(item.draft_values).length > 0 ? (
                           <><svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>Continuar</>
                         ) : (
@@ -600,7 +600,7 @@ export default function Expediente() {
                       </button>
                       )
                     ) : (
-                      <span className="text-xs text-[#1a2d56]/40 italic">Sin plantilla asignada</span>
+                      <span className="text-xs text-[#112d86]/40 italic">Sin plantilla asignada</span>
                     )}
                   </div>
                 </div>
@@ -615,14 +615,14 @@ export default function Expediente() {
       {showPreview && previewUrl && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1a2d56]/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#112d86]/10">
               <div>
-                <h3 className="text-lg font-semibold text-[#1a2d56]">Vista previa del documento</h3>
-                <p className="text-xs text-[#1a2d56]/40">Los campos ingresados están destacados en amarillo</p>
+                <h3 className="text-lg font-semibold text-[#112d86]">Vista previa del documento</h3>
+                <p className="text-xs text-[#112d86]/40">Los campos ingresados están destacados en amarillo</p>
               </div>
               <button
                 onClick={() => { setShowPreview(false); URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }}
-                className="text-[#1a2d56]/40 hover:text-[#1a2d56] text-xl font-bold px-2"
+                className="text-[#112d86]/40 hover:text-[#112d86] text-xl font-bold px-2"
               >
                 ✕
               </button>
@@ -642,7 +642,7 @@ export default function Expediente() {
       <div className="flex items-center justify-between gap-4">
         <button
           onClick={() => navigate("/generate")}
-          className="text-sm text-[#1a2d56]/60 hover:text-[#1a2d56] transition-colors flex items-center gap-1.5"
+          className="text-sm text-[#112d86]/60 hover:text-[#112d86] transition-colors flex items-center gap-1.5"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -653,7 +653,7 @@ export default function Expediente() {
           onClick={handleDownloadAllDocx}
           disabled={approvedCount === 0 || downloadingAllDocx}
           className="inline-flex items-center gap-2 text-white py-2.5 px-5 rounded-xl text-sm font-semibold shadow-sm hover:shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: "linear-gradient(135deg, #1a2d56, #243b6e)" }}
+          style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
           title={approvedCount === 0 ? "No hay documentos aprobados aún" : "Descargar aprobados en Word"}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
