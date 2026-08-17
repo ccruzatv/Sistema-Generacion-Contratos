@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { getCategories, getTemplates, deleteTemplate, createCategory, renameCategory, deleteCategory } from "../services/api";
+import { getCategories, getTemplates, deleteTemplate, createCategory, renameCategory, deleteCategory, reparseAllTemplates } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import UploadTemplate from "../components/UploadTemplate";
 
@@ -56,6 +56,8 @@ export default function TemplateList() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
+  const [reparsing, setReparsing] = useState(false);
+  const [reparseMsg, setReparseMsg] = useState("");
 
   // Modal state: { mode: "create-type"|"create-sub"|"rename", target: category|null }
   const [modal, setModal] = useState(null);
@@ -172,6 +174,21 @@ export default function TemplateList() {
     }
   }
 
+  async function handleReparseAll() {
+    if (!confirm("¿Redetectar los campos de todas las plantillas? Esto sobrescribirá los campos detectados actualmente.")) return;
+    setReparsing(true);
+    setReparseMsg("");
+    try {
+      const result = await reparseAllTemplates();
+      setReparseMsg(result.message);
+      loadTemplates(selectedSub?.id);
+    } catch (err) {
+      setReparseMsg("Error: " + err.message);
+    } finally {
+      setReparsing(false);
+    }
+  }
+
   const subcategories = selectedType?.children || [];
 
   return (
@@ -200,18 +217,32 @@ export default function TemplateList() {
               : "Seleccione un tipo de contrato para ver sus subcarpetas"}
           </p>
           {actionError && <p className="text-xs text-red-500 mt-1">{actionError}</p>}
+          {reparseMsg && <p className="text-xs text-[#112d86]/70 mt-1">{reparseMsg}</p>}
         </div>
         {isSuperAdmin && (
-          <button
-            onClick={() => setShowUpload(!showUpload)}
-            className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-              {showUpload ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />}
-            </svg>
-            {showUpload ? "Cerrar" : "Cargar Plantilla"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleReparseAll}
+              disabled={reparsing}
+              title="Vuelve a detectar los campos {{...}} de todas las plantillas cargadas"
+              className="flex items-center gap-2 text-[#112d86] px-4 py-2.5 rounded-xl text-sm font-semibold border-2 border-[#112d86]/15 bg-white shadow-sm hover:border-[#112d86]/30 hover:shadow-md transition-all duration-200 disabled:opacity-50"
+            >
+              <svg className={`w-4 h-4 ${reparsing ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              {reparsing ? "Redetectando..." : "Redetectar Todo"}
+            </button>
+            <button
+              onClick={() => setShowUpload(!showUpload)}
+              className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              style={{ background: "linear-gradient(135deg, #112d86, #1a3a9e)" }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                {showUpload ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /> : <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />}
+              </svg>
+              {showUpload ? "Cerrar" : "Cargar Plantilla"}
+            </button>
+          </div>
         )}
       </div>
 

@@ -31,10 +31,8 @@ export default function Login() {
     <div
       className="h-screen w-screen overflow-hidden flex flex-col justify-between bg-cover bg-center"
       style={{
-        // TODO: reemplazar por la foto del edificio Tribunales de Justicia
-        // (backgroundImage: "url('/login-bg.jpg')") en cuanto se adjunte el archivo.
         backgroundImage:
-          "linear-gradient(160deg, rgba(17,45,134,0.88), rgba(26,58,158,0.72)), linear-gradient(0deg, #eef1f7, #eef1f7)",
+          "linear-gradient(160deg, rgba(17,45,134,0.88), rgba(26,58,158,0.72)), url('/login-bg.jpg')",
       }}
     >
       <div className="flex-1 flex items-center justify-center px-4 py-2 -mt-6 sm:-mt-8">
