@@ -32,7 +32,7 @@ export default function Login() {
       className="h-screen w-screen overflow-hidden flex flex-col justify-between bg-cover bg-center"
       style={{
         backgroundImage:
-          "linear-gradient(160deg, rgba(17,45,134,0.88), rgba(26,58,158,0.72)), url('/login-bg.jpg')",
+          "linear-gradient(160deg, rgba(9,20,56,0.42), rgba(9,20,56,0.42)), url('/login-bg.jpg')",
       }}
     >
       <div className="flex-1 flex items-center justify-center px-4 py-2 -mt-6 sm:-mt-8">
