@@ -11,3 +11,5 @@ backend/templates/*.docx
 node_modules/
 dist/
 .vite/
+venv/
+backend/venv/
