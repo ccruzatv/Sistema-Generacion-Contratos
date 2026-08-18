@@ -19,17 +19,21 @@ import JurisdiccionSelector from "../components/JurisdiccionSelector";
 import InsumoUpload from "../components/InsumoUpload";
 import { useToast } from "../components/Toast";
 
-// Alias de campos canónicos extraídos de los documentos de insumo hacia
-// posibles nombres/etiquetas de campos de plantilla. Se agrega un canónico
-// más aquí cuando se sumen nuevas reglas de extracción en el backend.
-const INSUMO_FIELD_ALIASES = {
-  precio: ["precio", "monto", "valor"],
-  vigencia: ["vigencia", "plazo", "duracion", "duración"],
-  garantia: ["garantia", "garantía"],
-  renovacion: ["renovacion", "renovación"],
-  termino_anticipado: ["termino_anticipado", "término anticipado", "terminacion anticipada", "terminación anticipada"],
-  multas: ["multa", "multas"],
-};
+// El backend nombra cada campo canónico de extracción igual que el marcador
+// real de la plantilla (normalizado): MONTO -> "monto", DURACION_DEL_SERVICIO
+// -> "duracion_del_servicio", etc. — ver normalize_key en extraction.py.
+// El emparejamiento es por igualdad exacta de esa clave normalizada, nunca
+// por coincidencia parcial de texto: eso evitaba que, por ejemplo, el valor
+// detectado para "vigencia" terminara también en un campo "duracion" sin
+// relación real con lo extraído.
+function normalizeKey(str) {
+  return (str || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
 
 function matchInsumosToFields(insumos, fields) {
   const merged = {};
@@ -41,14 +45,8 @@ function matchInsumosToFields(insumos, fields) {
   }
   const result = {};
   for (const field of fields || []) {
-    const keyLower = field.field_key.toLowerCase();
-    const labelLower = (field.field_label || "").toLowerCase();
-    for (const [canonical, aliases] of Object.entries(INSUMO_FIELD_ALIASES)) {
-      if (merged[canonical] && aliases.some((a) => keyLower.includes(a) || labelLower.includes(a))) {
-        result[field.field_key] = merged[canonical];
-        break;
-      }
-    }
+    const key = normalizeKey(field.field_key);
+    if (merged[key]) result[field.field_key] = merged[key];
   }
   return result;
 }
