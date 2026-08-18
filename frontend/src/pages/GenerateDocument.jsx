@@ -16,7 +16,42 @@ import {
 } from "../services/api";
 import DynamicForm from "../components/DynamicForm";
 import JurisdiccionSelector from "../components/JurisdiccionSelector";
+import InsumoUpload from "../components/InsumoUpload";
 import { useToast } from "../components/Toast";
+
+// Alias de campos canónicos extraídos de los documentos de insumo hacia
+// posibles nombres/etiquetas de campos de plantilla. Se agrega un canónico
+// más aquí cuando se sumen nuevas reglas de extracción en el backend.
+const INSUMO_FIELD_ALIASES = {
+  precio: ["precio", "monto", "valor"],
+  vigencia: ["vigencia", "plazo", "duracion", "duración"],
+  garantia: ["garantia", "garantía"],
+  renovacion: ["renovacion", "renovación"],
+  termino_anticipado: ["termino_anticipado", "término anticipado", "terminacion anticipada", "terminación anticipada"],
+  multas: ["multa", "multas"],
+};
+
+function matchInsumosToFields(insumos, fields) {
+  const merged = {};
+  for (const insumo of insumos) {
+    for (const [canonical, value] of Object.entries(insumo.extracted || {})) {
+      if (!value || merged[canonical]) continue;
+      merged[canonical] = value;
+    }
+  }
+  const result = {};
+  for (const field of fields || []) {
+    const keyLower = field.field_key.toLowerCase();
+    const labelLower = (field.field_label || "").toLowerCase();
+    for (const [canonical, aliases] of Object.entries(INSUMO_FIELD_ALIASES)) {
+      if (merged[canonical] && aliases.some((a) => keyLower.includes(a) || labelLower.includes(a))) {
+        result[field.field_key] = merged[canonical];
+        break;
+      }
+    }
+  }
+  return result;
+}
 
 export default function GenerateDocument() {
   const { templateId: paramId } = useParams();
@@ -48,8 +83,10 @@ export default function GenerateDocument() {
   const [draftComment, setDraftComment] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [insumos, setInsumos] = useState([]);
 
   const isOperativo = user?.role === "operativo";
+  const autoFillValues = matchInsumosToFields(insumos, template?.fields);
 
   useEffect(() => {
     getTemplates()
@@ -65,6 +102,7 @@ export default function GenerateDocument() {
           setTemplate(data);
           setResult(null);
           setError("");
+          setInsumos([]);
           // Auto-fill jurisdiccion field if template has it and bundle provides it
           if (jurisdiccion && data?.fields) {
             const jurField = data.fields.find((f) =>
@@ -94,9 +132,10 @@ export default function GenerateDocument() {
     setResult(null);
     try {
       const payload = { ...values, jurisdiccion };
+      const insumoIds = insumos.map((i) => i.id);
       const data = correctionDocId
-        ? await regenerateDocument(correctionDocId, Number(selectedId), payload)
-        : await generateDocument(Number(selectedId), payload);
+        ? await regenerateDocument(correctionDocId, Number(selectedId), payload, insumoIds)
+        : await generateDocument(Number(selectedId), payload, insumoIds);
       setResult(data);
 
       // Link to bundle item if we came from an expediente
@@ -234,6 +273,8 @@ export default function GenerateDocument() {
               <JurisdiccionSelector value={jurisdiccion} onChange={setJurisdiccion} />
             )}
           </div>
+          <InsumoUpload insumos={insumos} onChange={setInsumos} />
+
           <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
             <h2 className="text-lg font-semibold text-[#112d86] mb-1">{template.name}</h2>
             <p className="text-xs text-[#112d86]/40 mb-5">Complete todos los campos requeridos (*)</p>
@@ -243,6 +284,7 @@ export default function GenerateDocument() {
               onSubmit={handleGenerate}
               loading={loading}
               initialValues={initialValues}
+              autoFillValues={autoFillValues}
               onSaveDraft={bundleId ? handleSaveDraft : null}
               savingDraft={savingDraft}
             />

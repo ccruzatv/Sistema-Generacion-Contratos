@@ -4,6 +4,7 @@ __pycache__/
 .env
 *.db
 backend/generated/
+backend/insumos/
 backend/templates/*.docx
 !backend/templates/ejemplo_contrato.docx
 !backend/templates/base_tecnica_licitacion.docx

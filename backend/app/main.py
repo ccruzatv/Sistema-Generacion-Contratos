@@ -11,7 +11,7 @@ from sqlalchemy import inspect as sa_inspect, text
 from .database import engine, Base, SessionLocal
 from . import models  # noqa: ensure all models are registered before create_all
 from .scheduler import start_scheduler
-from .routes import templates, documents, auth, users, categories, repository, drafts, bundles, dashboard, tribunales, direcciones, presupuesto, uploads
+from .routes import templates, documents, auth, users, categories, repository, drafts, bundles, dashboard, tribunales, direcciones, presupuesto, uploads, insumos
 from .seed import seed_database
 
 
@@ -110,6 +110,7 @@ app.include_router(tribunales.router)
 app.include_router(direcciones.router)
 app.include_router(presupuesto.router)
 app.include_router(uploads.router)
+app.include_router(insumos.router)
 
 
 @app.get("/api/health")

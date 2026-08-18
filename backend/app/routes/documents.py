@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Template, User, UserDocument, DocumentEvent, DraftSubmission
+from ..models import Template, User, UserDocument, DocumentEvent, DraftSubmission, InsumoDocumento
 from ..schemas import DocumentGenerateRequest
 from ..services.document_generator import generate_document, convert_to_pdf, add_draft_marker, add_validation_footer, GENERATED_DIR
 from ..services.text_review import review_field_values
@@ -128,6 +128,13 @@ def generate(
             detail=f"Documento aprobado automáticamente — generado por {user.name}",
         ))
 
+    if request.insumo_ids:
+        db.query(InsumoDocumento).filter(
+            InsumoDocumento.id.in_(request.insumo_ids),
+            InsumoDocumento.uploaded_by == user.id,
+            InsumoDocumento.document_id.is_(None),
+        ).update({"document_id": user_doc.id}, synchronize_session=False)
+
     db.commit()
     db.refresh(user_doc)
 
@@ -203,6 +210,14 @@ def regenerate_document_corrected(
         actor_role=user.role,
         detail=f"Corrección #{correction_count}: documento corregido y reenviado para validación",
     ))
+
+    if request.insumo_ids:
+        db.query(InsumoDocumento).filter(
+            InsumoDocumento.id.in_(request.insumo_ids),
+            InsumoDocumento.uploaded_by == user.id,
+            InsumoDocumento.document_id.is_(None),
+        ).update({"document_id": doc.id}, synchronize_session=False)
+
     db.commit()
 
     return {"message": "Documento corregido exitosamente", "document_id": doc.id, "docx_filename": doc.docx_filename}
