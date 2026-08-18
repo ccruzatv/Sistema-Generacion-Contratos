@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getTribunalesDisponibles, getDireccionesJurisdicciones, buscarDirecciones, getSubtitulos, getItemsPresupuesto, getAsignacionesPresupuesto } from "../services/api";
 
-export default function DynamicForm({ fields, onSubmit, loading, initialValues, onSaveDraft, savingDraft, jurisdiccion }) {
+export default function DynamicForm({ fields, onSubmit, loading, initialValues, onSaveDraft, savingDraft, jurisdiccion, autoFillValues }) {
   const seen = new Set();
   const sorted = [...fields]
     .sort((a, b) => a.field_order - b.field_order)
@@ -11,7 +11,27 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
     sorted.forEach((f) => (initial[f.field_key] = initialValues?.[f.field_key] || ""));
     return initial;
   });
+  const [autoFilledKeys, setAutoFilledKeys] = useState(new Set());
   const [tribunalesDisponibles, setTribunalesDisponibles] = useState([]);
+
+  // Datos detectados en documentos de insumo: solo completan campos aún vacíos,
+  // nunca pisan lo que el usuario ya escribió.
+  useEffect(() => {
+    if (!autoFillValues || Object.keys(autoFillValues).length === 0) return;
+    setValues((prev) => {
+      const next = { ...prev };
+      const filled = new Set();
+      for (const [key, val] of Object.entries(autoFillValues)) {
+        if (val && !prev[key]) {
+          next[key] = val;
+          filled.add(key);
+        }
+      }
+      if (filled.size > 0) setAutoFilledKeys((old) => new Set([...old, ...filled]));
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFillValues]);
 
   const hasTablaTribunales = sorted.some((f) => f.field_type === "tabla_tribunales");
   const hasDireccionInmueble = sorted.some((f) => f.field_type === "direccion_inmueble");
@@ -107,6 +127,13 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
 
   function handleChange(key, value) {
     setValues((prev) => ({ ...prev, [key]: value }));
+    if (autoFilledKeys.has(key)) {
+      setAutoFilledKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
   }
 
   function handleSubmit(e) {
@@ -338,6 +365,11 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
             >
               {field.field_label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
+              {autoFilledKeys.has(field.field_key) && (
+                <span className="ml-2 inline-block bg-green-50 text-green-700 border border-green-200 text-[10px] font-medium px-1.5 py-0.5 rounded-full align-middle">
+                  Detectado del documento
+                </span>
+              )}
             </label>
             {renderField(field)}
           </div>

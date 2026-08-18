@@ -139,3 +139,4 @@ class TemplateListResponse(TemplateBase):
 class DocumentGenerateRequest(BaseModel):
     template_id: int
     field_values: dict[str, str]
+    insumo_ids: list[int] = []

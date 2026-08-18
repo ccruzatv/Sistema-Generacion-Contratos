@@ -175,25 +175,27 @@ export async function reparseTemplate(id) {
 
 // ── Documents ──
 
-export async function generateDocument(templateId, fieldValues) {
+export async function generateDocument(templateId, fieldValues, insumoIds = []) {
   const res = await request("/documents/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       template_id: templateId,
       field_values: fieldValues,
+      insumo_ids: insumoIds,
     }),
   });
   return res.json();
 }
 
-export async function regenerateDocument(docId, templateId, fieldValues) {
+export async function regenerateDocument(docId, templateId, fieldValues, insumoIds = []) {
   const res = await request(`/documents/regenerate/${docId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       template_id: templateId,
       field_values: fieldValues,
+      insumo_ids: insumoIds,
     }),
   });
   return res.json();
@@ -441,5 +443,27 @@ export async function deleteBundle(bundleId) {
 
 export async function getDashboardStats() {
   const res = await request("/dashboard/stats");
+  return res.json();
+}
+
+// ── Insumos (documentos de respaldo para extracción) ──
+
+export async function uploadInsumo(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await request("/insumos/upload", {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+export async function deleteInsumo(id) {
+  const res = await request(`/insumos/${id}`, { method: "DELETE" });
+  return res.json();
+}
+
+export async function getInsumosForDocument(documentId) {
+  const res = await request(`/insumos/document/${documentId}`);
   return res.json();
 }

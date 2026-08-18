@@ -215,6 +215,21 @@ class PresupuestoCombinacion(Base):
     created_at = Column(DateTime, default=lambda: _now_chile())
 
 
+class InsumoDocumento(Base):
+    __tablename__ = "insumo_documentos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("user_documents.id"), nullable=True, index=True)
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    filename = Column(String(500), nullable=False)
+    stored_path = Column(String(500), nullable=False)
+    extracted_data_json = Column(Text, default="")
+    created_at = Column(DateTime, default=lambda: _now_chile())
+
+    document = relationship("UserDocument")
+    uploader = relationship("User")
+
+
 class UploadLog(Base):
     __tablename__ = "upload_logs"
 
