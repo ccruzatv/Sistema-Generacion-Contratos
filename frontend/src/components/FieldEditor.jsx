@@ -9,19 +9,40 @@ const FIELD_TYPES = [
   { value: "email", label: "Email" },
   { value: "tel", label: "Teléfono" },
   { value: "select", label: "Selección" },
+  { value: "percentage", label: "Porcentaje" },
 ];
+
+// field_type "percentage" admite un grupo opcional codificado como
+// "percentage:nombre_grupo" — los campos porcentaje que comparten grupo
+// deben sumar 100% entre sí (ver DynamicForm.jsx). Sin grupo, es un
+// porcentaje suelto sin esa validación — útil cuando una misma plantilla
+// tiene varios porcentajes independientes (ej. criterios de evaluación
+// que suman 100%, más un porcentaje de garantía aparte).
+function splitPercentageType(fieldType) {
+  if (!fieldType?.startsWith("percentage")) return { base: fieldType, group: "" };
+  const [, group = ""] = fieldType.split(":");
+  return { base: "percentage", group };
+}
+
+function composeFieldType(base, group) {
+  if (base !== "percentage") return base;
+  const g = group.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  return g ? `percentage:${g}` : "percentage";
+}
 
 function FieldRow({ field, templateId, onUpdated, readOnly }) {
   const [editing, setEditing] = useState(false);
   const [label, setLabel] = useState(field.field_label);
-  const [type, setType] = useState(field.field_type);
+  const initial = splitPercentageType(field.field_type);
+  const [type, setType] = useState(initial.base);
+  const [pctGroup, setPctGroup] = useState(initial.group);
   const [required, setRequired] = useState(field.required);
   const [loading, setLoading] = useState(false);
 
   async function handleSave() {
     setLoading(true);
     try {
-      await updateField(templateId, field.id, { field_label: label, field_type: type, required });
+      await updateField(templateId, field.id, { field_label: label, field_type: composeFieldType(type, pctGroup), required });
       setEditing(false);
       onUpdated?.();
     } finally {
@@ -40,7 +61,11 @@ function FieldRow({ field, templateId, onUpdated, readOnly }) {
       <tr className="border-b border-[#112d86]/5 hover:bg-[#112d86]/[0.02]">
         <td className="py-3 px-4 text-sm font-mono text-[#112d86]/60">{`{{${field.field_key}}}`}</td>
         <td className="py-3 px-4 text-sm text-[#112d86]">{field.field_label}</td>
-        <td className="py-3 px-4 text-sm text-[#112d86]/70">{field.field_type}</td>
+        <td className="py-3 px-4 text-sm text-[#112d86]/70">
+          {initial.base === "percentage" ? (
+            <>Porcentaje{initial.group && <span className="text-[#112d86]/40"> ({initial.group})</span>}</>
+          ) : field.field_type}
+        </td>
         <td className="py-3 px-4 text-sm text-[#112d86]/70">{field.required ? "Sí" : "No"}</td>
         {!readOnly && (
           <td className="py-3 px-4 text-sm space-x-2">
@@ -62,6 +87,16 @@ function FieldRow({ field, templateId, onUpdated, readOnly }) {
         <select value={type} onChange={(e) => setType(e.target.value)} className="border border-[#112d86]/20 rounded-lg px-2 py-1 text-sm">
           {FIELD_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
+        {type === "percentage" && (
+          <input
+            type="text"
+            value={pctGroup}
+            onChange={(e) => setPctGroup(e.target.value)}
+            placeholder="Grupo (opcional, ej: evaluacion)"
+            title="Campos porcentaje con el mismo grupo deben sumar 100% entre sí. Vacío = porcentaje suelto, sin esa validación."
+            className="mt-1 border border-[#112d86]/20 rounded-lg px-2 py-1 text-xs w-full"
+          />
+        )}
       </td>
       <td className="py-3 px-4">
         <input type="checkbox" checked={required} onChange={(e) => setRequired(e.target.checked)} className="accent-[#112d86]" />
@@ -79,19 +114,21 @@ export default function FieldEditor({ fields, templateId, onUpdated, readOnly = 
   const [newKey, setNewKey] = useState("");
   const [newLabel, setNewLabel] = useState("");
   const [newType, setNewType] = useState("text");
+  const [newPctGroup, setNewPctGroup] = useState("");
 
   async function handleAdd() {
     if (!newKey.trim()) return;
     await addField(templateId, {
       field_key: newKey.trim(),
       field_label: newLabel.trim() || newKey.trim(),
-      field_type: newType,
+      field_type: composeFieldType(newType, newPctGroup),
       field_order: fields.length,
       required: true,
     });
     setNewKey("");
     setNewLabel("");
     setNewType("text");
+    setNewPctGroup("");
     setShowAdd(false);
     onUpdated?.();
   }
@@ -128,6 +165,19 @@ export default function FieldEditor({ fields, templateId, onUpdated, readOnly = 
               {FIELD_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
+          {newType === "percentage" && (
+            <div>
+              <label className="block text-xs font-medium text-[#112d86] mb-1">Grupo (opcional)</label>
+              <input
+                type="text"
+                value={newPctGroup}
+                onChange={(e) => setNewPctGroup(e.target.value)}
+                placeholder="ej: evaluacion"
+                title="Campos porcentaje con el mismo grupo deben sumar 100% entre sí."
+                className="border border-[#112d86]/20 rounded-lg px-2 py-1.5 text-sm"
+              />
+            </div>
+          )}
           <button onClick={handleAdd} className="bg-[#112d86] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-[#1a3a9e]">Agregar</button>
         </div>
       )}

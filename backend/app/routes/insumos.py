@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import InsumoDocumento, User
 from ..services.auth import get_current_user
-from ..services.extraction import extract_text, extract_fields
+from ..services.extraction import extract_fields
 
 router = APIRouter(prefix="/api/insumos", tags=["insumos"])
 
@@ -40,8 +40,7 @@ async def upload_insumo(
         f.write(content)
 
     try:
-        text = extract_text(stored_path)
-        extracted = extract_fields(text)
+        extracted = extract_fields(stored_path)
     except Exception as e:
         os.remove(stored_path)
         raise HTTPException(status_code=422, detail=f"No se pudo leer el documento: {str(e)}")

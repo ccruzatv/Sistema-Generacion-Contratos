@@ -115,9 +115,23 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
       setDireccionField(key, { results: [] });
     }
   }
-  const percentageFields = sorted.filter((f) => f.field_type === "percentage");
-  const percentageSum = percentageFields.reduce((acc, f) => acc + (parseFloat(values[f.field_key]) || 0), 0);
-  const percentageMismatch = percentageFields.length >= 2 && Math.abs(percentageSum - 100) > 0.001;
+  // Campos "percentage" o "percentage:grupo" — los que comparten grupo deben
+  // sumar 100% entre sí; una plantilla puede tener varios grupos
+  // independientes (ej. criterios de evaluación que suman 100%, más un
+  // porcentaje de garantía suelto que no forma parte de esa suma).
+  const percentageFields = sorted.filter((f) => f.field_type === "percentage" || f.field_type?.startsWith("percentage:"));
+  const percentageGroupsMap = {};
+  for (const f of percentageFields) {
+    const group = f.field_type.includes(":") ? f.field_type.split(":")[1] : "";
+    (percentageGroupsMap[group] ||= []).push(f);
+  }
+  const percentageGroups = Object.entries(percentageGroupsMap)
+    .filter(([, fields]) => fields.length >= 2)
+    .map(([group, fields]) => {
+      const sum = fields.reduce((acc, f) => acc + (parseFloat(values[f.field_key]) || 0), 0);
+      return { group, sum, mismatch: Math.abs(sum - 100) > 0.001 };
+    });
+  const percentageMismatch = percentageGroups.some((g) => g.mismatch);
 
   useEffect(() => {
     if (hasTablaTribunales) {
@@ -271,7 +285,7 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
       );
     }
 
-    if (field.field_type === "percentage") {
+    if (field.field_type === "percentage" || field.field_type?.startsWith("percentage:")) {
       return (
         <div className="relative">
           <input type="number" min="0" max="100" step="any" {...common} className={`${common.className} pr-8`} />
@@ -376,14 +390,14 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
         );
       })}
 
-      {percentageFields.length >= 2 && (
-        <div className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium ${
-          percentageMismatch ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-700 border border-green-200"
+      {percentageGroups.map(({ group, sum, mismatch }) => (
+        <div key={group || "_default"} className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium ${
+          mismatch ? "bg-red-50 text-red-600 border border-red-200" : "bg-green-50 text-green-700 border border-green-200"
         }`}>
-          <span>Suma de porcentajes de evaluación</span>
-          <span>{percentageSum.toFixed(2)}% {percentageMismatch ? "(debe totalizar 100%)" : "✓"}</span>
+          <span>Suma de porcentajes{group ? ` (${group})` : ""}</span>
+          <span>{sum.toFixed(2)}% {mismatch ? "(debe totalizar 100%)" : "✓"}</span>
         </div>
-      )}
+      ))}
 
       <div className={`flex gap-3 ${onSaveDraft ? "flex-row" : ""}`}>
         {onSaveDraft && (
