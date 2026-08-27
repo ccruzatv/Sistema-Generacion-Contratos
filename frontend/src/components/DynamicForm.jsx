@@ -15,20 +15,36 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
   const [tribunalesDisponibles, setTribunalesDisponibles] = useState([]);
 
   // Datos detectados en documentos de insumo: solo completan campos aún vacíos,
-  // nunca pisan lo que el usuario ya escribió.
+  // nunca pisan lo que el usuario ya escribió. Reacciona en tiempo real: si se
+  // elimina el insumo o se destilda un dato, el campo que ese dato había
+  // completado se limpia también (mientras el usuario no lo haya editado a mano).
   useEffect(() => {
-    if (!autoFillValues || Object.keys(autoFillValues).length === 0) return;
     setValues((prev) => {
       const next = { ...prev };
-      const filled = new Set();
-      for (const [key, val] of Object.entries(autoFillValues)) {
-        if (val && !prev[key]) {
-          next[key] = val;
-          filled.add(key);
+      let changed = false;
+      for (const key of autoFilledKeys) {
+        if (!autoFillValues?.[key] && next[key] !== "") {
+          next[key] = "";
+          changed = true;
         }
       }
-      if (filled.size > 0) setAutoFilledKeys((old) => new Set([...old, ...filled]));
-      return next;
+      for (const [key, val] of Object.entries(autoFillValues || {})) {
+        if (val && !next[key]) {
+          next[key] = val;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+    setAutoFilledKeys((oldKeys) => {
+      const nextKeys = new Set();
+      for (const key of oldKeys) {
+        if (autoFillValues?.[key]) nextKeys.add(key);
+      }
+      for (const key of Object.keys(autoFillValues || {})) {
+        if (autoFillValues[key]) nextKeys.add(key);
+      }
+      return nextKeys;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoFillValues]);
