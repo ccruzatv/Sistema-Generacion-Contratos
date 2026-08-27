@@ -1,14 +1,12 @@
 import { useState, useRef } from "react";
 import { uploadInsumo, deleteInsumo } from "../services/api";
 
-const FIELD_LABELS = {
-  precio: "Precio",
-  vigencia: "Vigencia",
-  garantia: "Garantía",
-  renovacion: "Renovación",
-  termino_anticipado: "Término anticipado",
-  multas: "Multas",
-};
+function prettyLabel(key) {
+  return key
+    .split("_")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 export default function InsumoUpload({ insumos, onChange }) {
   const [uploading, setUploading] = useState(false);
@@ -23,7 +21,13 @@ export default function InsumoUpload({ insumos, onChange }) {
     try {
       for (const file of files) {
         const result = await uploadInsumo(file);
-        onChange([...insumos, result]);
+        // Todo lo detectado queda aprobado (con tic) por defecto; el usuario
+        // puede destildar lo que no quiera traspasar al formulario.
+        const approved = {};
+        for (const [k, v] of Object.entries(result.extracted || {})) {
+          if (v) approved[k] = true;
+        }
+        onChange([...insumos, { ...result, approved }]);
       }
     } catch (err) {
       setError(err.message || "Error al cargar el documento");
@@ -42,13 +46,21 @@ export default function InsumoUpload({ insumos, onChange }) {
     }
   }
 
+  function handleToggle(id, key) {
+    onChange(
+      insumos.map((i) =>
+        i.id === id ? { ...i, approved: { ...i.approved, [key]: !i.approved?.[key] } } : i
+      )
+    );
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
       <h2 className="text-sm font-semibold text-[#112d86] mb-1">Documentos de insumo</h2>
       <p className="text-xs text-[#112d86]/50 mb-4">
         Cargue los documentos de respaldo del contrato (cotizaciones, pólizas, contratos previos, etc.).
-        El sistema intentará detectar automáticamente precio, vigencia, garantía, renovación, término
-        anticipado y multas para pre-completar el formulario.
+        El sistema intentará detectar datos relevantes del contrato. Revise y confirme con el tic cuáles
+        datos detectados desea traspasar al formulario.
       </p>
 
       <label
@@ -98,12 +110,27 @@ export default function InsumoUpload({ insumos, onChange }) {
                   </button>
                 </div>
                 {found.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {found.map(([k, v]) => (
-                      <span key={k} className="inline-block bg-green-50 text-green-700 border border-green-200 text-[10px] font-medium px-2 py-0.5 rounded-full">
-                        {FIELD_LABELS[k] || k}: {v.length > 40 ? v.slice(0, 40) + "…" : v}
-                      </span>
-                    ))}
+                  <div className="mt-2.5 space-y-1.5">
+                    <p className="text-[10px] font-medium text-[#112d86]/40 uppercase tracking-wider">
+                      Datos detectados — desmarque lo que no desea traspasar
+                    </p>
+                    {found.map(([k, v]) => {
+                      const checked = i.approved?.[k] !== false;
+                      return (
+                        <label key={k} className="flex items-start gap-2 cursor-pointer group">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => handleToggle(i.id, k)}
+                            className="mt-0.5 accent-[#112d86] flex-shrink-0"
+                          />
+                          <span className={`text-xs leading-snug ${checked ? "text-[#112d86]" : "text-[#112d86]/35 line-through"}`}>
+                            <span className="font-medium">{prettyLabel(k)}:</span>{" "}
+                            {v.length > 120 ? v.slice(0, 120) + "…" : v}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-[10px] text-[#112d86]/40 mt-1.5">No se detectaron datos automáticamente en este documento.</p>

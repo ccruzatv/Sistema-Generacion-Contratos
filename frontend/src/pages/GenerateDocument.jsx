@@ -40,6 +40,8 @@ function matchInsumosToFields(insumos, fields) {
   for (const insumo of insumos) {
     for (const [canonical, value] of Object.entries(insumo.extracted || {})) {
       if (!value || merged[canonical]) continue;
+      // Solo se traspasa al formulario lo que el usuario dejó tildado.
+      if (insumo.approved?.[canonical] === false) continue;
       merged[canonical] = value;
     }
   }
