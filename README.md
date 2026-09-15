@@ -1,4 +1,4 @@
-# SGAC — Sistema de Generación Automatizada de Contratos
+# SGAC - Sistema de Generación Automatizada de Contratos
 
 **Subdepartamento de Mejoramiento Continuo - Poder Judicial de Chile**
 
