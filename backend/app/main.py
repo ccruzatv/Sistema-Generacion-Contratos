@@ -48,6 +48,7 @@ if engine.dialect.name == "oracle":
     _migrate_add_column_if_missing("bundle_items", "is_optional", "NUMBER(1) DEFAULT 0")
     _migrate_add_column_if_missing("users", "token_expires_at", "DATE")
     _migrate_add_column_if_missing("users", "jurisdiccion", "VARCHAR2(100)")
+    _migrate_add_column_if_missing("template_fields", "depends_on", "VARCHAR2(255)")
 
     def _migrate_drop_category_unique_index() -> None:
         """Drop unique index on categories.name if it exists (allows subcategory name duplicates)."""

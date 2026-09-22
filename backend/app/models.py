@@ -80,6 +80,7 @@ class TemplateField(Base):
     required = Column(SmallInteger, CheckConstraint("required IN (0,1)"), default=1)
     placeholder = Column(String(255), default="")
     options = Column(Text, default="")
+    depends_on = Column(String(255), nullable=True)
 
     template = relationship("Template", back_populates="fields")
 

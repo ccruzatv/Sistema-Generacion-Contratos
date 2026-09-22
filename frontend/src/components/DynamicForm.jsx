@@ -8,7 +8,13 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
     .filter((f) => seen.has(f.field_key) ? false : seen.add(f.field_key));
   const [values, setValues] = useState(() => {
     const initial = {};
-    sorted.forEach((f) => (initial[f.field_key] = initialValues?.[f.field_key] || ""));
+    sorted.forEach((f) => {
+      initial[f.field_key] = initialValues?.[f.field_key] || "";
+      if (f.field_type === "choice") {
+        const blankKey = `${f.field_key}__blank`;
+        initial[blankKey] = initialValues?.[blankKey] || "";
+      }
+    });
     return initial;
   });
   const [autoFilledKeys, setAutoFilledKeys] = useState(new Set());
@@ -149,6 +155,16 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
     });
   const percentageMismatch = percentageGroups.some((g) => g.mismatch);
 
+  // Campos con depends_on ("choice_key=option_value") solo se muestran (y
+  // solo son obligatorios) cuando esa opción es la elegida en el campo
+  // "choice" del que dependen — ej. los datos de Razón Social/RUT solo
+  // aparecen si se marcó "persona jurídica" en naturaleza jurídica.
+  function isFieldVisible(field) {
+    if (!field.depends_on) return true;
+    const [choiceKey, optionValue] = field.depends_on.split("=");
+    return values[choiceKey] === optionValue;
+  }
+
   useEffect(() => {
     if (hasTablaTribunales) {
       getTribunalesDisponibles().then(setTribunalesDisponibles).catch(() => {});
@@ -191,6 +207,46 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
       placeholder: field.placeholder || `Ingrese ${field.field_label.toLowerCase()}`,
       className: `w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 ${borderClasses}`,
     };
+
+    if (field.field_type === "choice") {
+      let options = [];
+      try {
+        options = JSON.parse(field.options || "[]");
+      } catch {
+        options = [];
+      }
+      const selected = values[field.field_key] || "";
+      const selectedOption = options.find((o) => o.value === selected);
+      const isMissingChoice = field.required && !selected;
+      return (
+        <div className={`space-y-1.5 rounded-lg border p-3 ${isMissingChoice ? "border-red-400 bg-red-50" : "border-[#112d86]/15"}`}>
+          {options.map((opt) => (
+            <label key={opt.value} className="flex items-start gap-2 cursor-pointer text-sm text-[#112d86]">
+              <input
+                type="radio"
+                name={field.field_key}
+                value={opt.value}
+                checked={selected === opt.value}
+                onChange={() => handleChange(field.field_key, opt.value)}
+                required={field.required}
+                className="mt-0.5 accent-[#112d86] flex-shrink-0"
+              />
+              <span>{opt.label}</span>
+            </label>
+          ))}
+          {selectedOption?.has_blank && (
+            <input
+              type="text"
+              value={values[`${field.field_key}__blank`] || ""}
+              onChange={(e) => handleChange(`${field.field_key}__blank`, e.target.value)}
+              required={field.required}
+              placeholder="Especifique"
+              className="mt-1 w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30 focus:border-[#112d86]/40"
+            />
+          )}
+        </div>
+      );
+    }
 
     if (field.field_type === "tabla_tribunales") {
       const selected = values[field.field_key] || "";
@@ -320,6 +376,7 @@ export default function DynamicForm({ fields, onSubmit, loading, initialValues, 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {sorted.map((field) => {
+        if (!isFieldVisible(field)) return null;
         if (itemField && field.field_key === itemField.field_key) return null;
         if (asignacionField && field.field_key === asignacionField.field_key) return null;
 
