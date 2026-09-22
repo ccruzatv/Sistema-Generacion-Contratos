@@ -1,6 +1,7 @@
 import os
 import re
 import copy
+import unicodedata
 import subprocess
 import shutil
 from docx import Document
@@ -16,6 +17,22 @@ TRIBUNALES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", 
 _TABLA_KEY = "tabla_tribunales"
 _TABLA_PLACEHOLDER = "{{tabla_tribunales}}"
 _ALLOWED_IMG_EXT = (".png", ".jpg", ".jpeg")
+
+# {{marcador}} — puede contener espacios, nunca cruza otra llave (ver
+# app/services/template_parser.py, que usa el mismo patrón para detectar
+# los campos al cargar la plantilla).
+_PLACEHOLDER_PATTERN = re.compile(r"\{\{((?:(?!\{\{|\}\}).)+?)\}\}")
+
+# ── "Campo parametrizable": el usuario marca UNA opción con una X y el
+# sistema arma una sola frase final a partir de ella (ver template_parser.py
+# para la documentación completa de estas marcas). ────────────────────────
+_GUIA_RE = re.compile(r"^\s*▸")
+_PARAM_MARKER_RE = re.compile(r"campo\s+parametrizable\s*[—\-–]*\s*marque\s+una\s+opci[oó]n\s*:\s*(.+)", re.IGNORECASE)
+_OPTION_RE = re.compile(r"^\s*☐\s*(.*)$")
+_BLANK_RE = re.compile(r"\[_{2,}\]")
+_INLINE_OPCION_RE = re.compile(r"^\s*\[OPCION:([^\]]+)\]\s*", re.IGNORECASE)
+_SI_OPCION_RE = re.compile(r"\[SI_OPCION:([^\]]+)\]", re.IGNORECASE)
+_FIN_SI_RE = re.compile(r"\[FIN_SI\]", re.IGNORECASE)
 
 
 def _all_headers_footers(section):
@@ -245,6 +262,174 @@ def _replace_tabla_tribunales(doc, jurisdiccion: str) -> None:
                 _process(cell.paragraphs)
 
 
+def _normalize_choice_key(raw: str) -> str:
+    text = unicodedata.normalize("NFD", raw)
+    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
+    text = re.sub(r"[^a-zA-Z0-9]+", "_", text).strip("_").lower()
+    return text or "opcion"
+
+
+def _derive_option_key(opt_text: str, used_keys: set) -> str:
+    """Must match template_parser.py's identical algorithm exactly — both
+    derive an option's key independently from the same text, at parse time
+    and at generation time, and need to land on the same value."""
+    words = opt_text.split()
+    for count in (4, 6, 8, len(words)):
+        key = _normalize_choice_key(" ".join(words[:count]))
+        if key not in used_keys:
+            return key
+    base = _normalize_choice_key(" ".join(words[:4]))
+    n = 2
+    while f"{base}_{n}" in used_keys:
+        n += 1
+    return f"{base}_{n}"
+
+
+def _remove_paragraph(paragraph) -> None:
+    p = paragraph._element
+    parent = p.getparent()
+    if parent is not None:
+        parent.remove(p)
+
+
+def _strip_prefix(paragraph, prefix_len: int) -> None:
+    """Remove the first `prefix_len` characters from a paragraph (a tag like
+    "[OPCION:x] "), preserving run formatting for the rest of the text."""
+    if prefix_len <= 0:
+        return
+    runs = paragraph.runs
+    if not runs:
+        return
+    _splice_run_range(runs, 0, prefix_len, "")
+
+
+def _resolve_parametrized_blocks(doc, field_values: dict) -> None:
+    """Resolve "campo parametrizable" choice blocks and [OPCION:x] /
+    [SI_OPCION:x]...[FIN_SI] conditional paragraphs against the submitted
+    field_values — BEFORE the normal {{}} substitution pass. Mutates the
+    document in place: keeps, rewrites, or deletes paragraphs.
+
+    A choice field's submitted value is the key of the option the user
+    picked (e.g. "juridica"); "<choice_key>__blank" carries the free-text
+    typed in for an option with its own blank (ej. "Otro plazo: [___] meses").
+    """
+    paragraphs = list(doc.paragraphs)
+    n = len(paragraphs)
+    to_remove: list = []
+
+    # Pass 1: marker + consecutive "☐" options -> keep only the chosen one,
+    # rewritten as the resolved sentence; delete the marker and other options.
+    i = 0
+    while i < n:
+        marker_match = _PARAM_MARKER_RE.search(paragraphs[i].text.strip())
+        if not marker_match:
+            i += 1
+            continue
+        label = marker_match.group(1).strip().rstrip(":.")
+        choice_key = _normalize_choice_key(label)
+        chosen_value = field_values.get(choice_key)
+
+        j = i + 1
+        options = []  # (paragraph, opt_key, opt_text)
+        used_option_keys: set = set()
+        while j < n:
+            opt_match = _OPTION_RE.match(paragraphs[j].text)
+            if not opt_match:
+                break
+            opt_text = opt_match.group(1).strip()
+            inline_tag = _INLINE_OPCION_RE.match(opt_text)
+            if inline_tag:
+                opt_key = _normalize_choice_key(inline_tag.group(1))
+                opt_text = opt_text[inline_tag.end():].strip()
+            else:
+                opt_key = _derive_option_key(opt_text, used_option_keys)
+            used_option_keys.add(opt_key)
+            options.append((paragraphs[j], opt_key, opt_text))
+            j += 1
+
+        if options:
+            chosen = None
+            for p, opt_key, opt_text in options:
+                if opt_key == chosen_value:
+                    chosen = (p, opt_text)
+                else:
+                    to_remove.append(p)
+            to_remove.append(paragraphs[i])
+            if chosen:
+                p, opt_text = chosen
+                blank_val = field_values.get(f"{choice_key}__blank", "")
+                resolved = _BLANK_RE.sub(lambda m: blank_val, opt_text)
+                runs = p.runs
+                if runs:
+                    _splice_run_range(runs, 0, len(p.text), resolved)
+        i = j if options else i + 1
+
+    # Pass 2: standalone guide notes (▸ Guía: ...) are always stripped.
+    for p in paragraphs:
+        if p not in to_remove and _GUIA_RE.match(p.text.strip()):
+            to_remove.append(p)
+
+    # Pass 3: [OPCION:x] tags elsewhere in the document (content written out
+    # in full ahead of its choice block) — keep only if x is the value some
+    # choice field resolved to; strip the tag from the surviving one.
+    chosen_option_keys = {v for v in field_values.values() if isinstance(v, str)}
+    for p in paragraphs:
+        if p in to_remove:
+            continue
+        stripped = p.text.strip()
+        tag_match = _INLINE_OPCION_RE.match(stripped)
+        if not tag_match:
+            continue
+        opt_key = _normalize_choice_key(tag_match.group(1))
+        leading_ws = len(p.text) - len(p.text.lstrip())
+        if opt_key in chosen_option_keys:
+            _strip_prefix(p, leading_ws + tag_match.end())
+        else:
+            to_remove.append(p)
+
+    # Pass 4: [SI_OPCION:x] ... [FIN_SI] conditional region.
+    i = 0
+    while i < n:
+        p = paragraphs[i]
+        if p in to_remove:
+            i += 1
+            continue
+        si_match = _SI_OPCION_RE.search(p.text)
+        if not si_match:
+            i += 1
+            continue
+        opt_key = _normalize_choice_key(si_match.group(1))
+        condition_met = opt_key in chosen_option_keys
+
+        fin_match_same = _FIN_SI_RE.search(p.text, si_match.end())
+        if fin_match_same:
+            if condition_met:
+                inner = p.text[si_match.end():fin_match_same.start()].strip()
+                runs = p.runs
+                if runs:
+                    _splice_run_range(runs, 0, len(p.text), inner)
+            else:
+                to_remove.append(p)
+            i += 1
+            continue
+
+        to_remove.append(p)
+        k = i + 1
+        while k < n and not _FIN_SI_RE.search(paragraphs[k].text):
+            if not condition_met:
+                to_remove.append(paragraphs[k])
+            k += 1
+        if k < n:
+            to_remove.append(paragraphs[k])
+        i = k + 1
+
+    for p in to_remove:
+        try:
+            _remove_paragraph(p)
+        except Exception:
+            pass
+
+
 def _apply_replacements(doc, field_values: dict[str, str], highlight: bool = False) -> None:
     """Apply field_values replacements to all paragraphs and tables in doc."""
     for paragraph in doc.paragraphs:
@@ -275,6 +460,7 @@ def generate_document(template_path: str, field_values: dict[str, str], output_n
     # Handle tabla_tribunales specially (image insertion, not text)
     jurisdiccion_tabla = field_values.get(_TABLA_KEY)
     text_values = {k: v for k, v in field_values.items() if k != _TABLA_KEY}
+    _resolve_parametrized_blocks(doc, text_values)
     _apply_replacements(doc, text_values)
     if jurisdiccion_tabla:
         _replace_tabla_tribunales(doc, jurisdiccion_tabla)
@@ -570,6 +756,36 @@ def add_pending_footer(docx_path: str, output_path: str, field_values: dict | No
     return output_path
 
 
+def _splice_run_range(runs, start: int, end: int, replacement: str):
+    """Replace the [start, end) character range of a paragraph's combined run
+    text with `replacement`, remapping across however many runs it spans.
+    Returns the first affected run (for optional extra styling), or None.
+    """
+    char_pos = 0
+    run_segments = []
+    for i, run in enumerate(runs):
+        run_start = char_pos
+        run_end = char_pos + len(run.text)
+        if run_end > start and run_start < end:
+            seg_start = max(start - run_start, 0)
+            seg_end = min(end - run_start, len(run.text))
+            run_segments.append((i, seg_start, seg_end))
+        char_pos = run_end
+
+    if not run_segments:
+        return None
+
+    first_idx, first_start, first_end = run_segments[0]
+    first_run = runs[first_idx]
+    first_run.text = first_run.text[:first_start] + replacement + first_run.text[first_end:]
+
+    for idx, seg_start, seg_end in run_segments[1:]:
+        run = runs[idx]
+        run.text = run.text[:seg_start] + run.text[seg_end:]
+
+    return first_run
+
+
 def _replace_in_paragraph(paragraph, field_values: dict[str, str], highlight: bool = False) -> None:
     """Replace {{placeholders}} in a paragraph while preserving formatting.
 
@@ -581,47 +797,26 @@ def _replace_in_paragraph(paragraph, field_values: dict[str, str], highlight: bo
     if "{{" not in full_text:
         return
 
-    pattern = r"\{\{(\w+)\}\}"
-    if not re.search(pattern, full_text):
+    if not re.search(_PLACEHOLDER_PATTERN, full_text):
         return
 
-    # Build a map of character positions to runs
     runs = paragraph.runs
     if not runs:
         return
 
-    # Concatenate all run texts and find placeholders
     combined = "".join(run.text for run in runs)
-    matches = list(re.finditer(pattern, combined))
+    matches = list(re.finditer(_PLACEHOLDER_PATTERN, combined))
     if not matches:
         return
 
     # Replace from right to left to preserve positions
     for match in reversed(matches):
-        key = match.group(1)
+        raw_key = match.group(1)
+        key = re.sub(r"\s+", "_", raw_key.strip())
         replacement = field_values.get(key, match.group(0))
-        start = match.start()
-        end = match.end()
-
-        # Find which runs are affected
-        char_pos = 0
-        run_segments = []
-        for i, run in enumerate(runs):
-            run_start = char_pos
-            run_end = char_pos + len(run.text)
-            if run_end > start and run_start < end:
-                seg_start = max(start - run_start, 0)
-                seg_end = min(end - run_start, len(run.text))
-                run_segments.append((i, seg_start, seg_end))
-            char_pos = run_end
-
-        if not run_segments:
+        first_run = _splice_run_range(runs, match.start(), match.end(), replacement)
+        if first_run is None:
             continue
-
-        # Replace in the first affected run, clear the rest
-        first_idx, first_start, first_end = run_segments[0]
-        first_run = runs[first_idx]
-        first_run.text = first_run.text[:first_start] + replacement + first_run.text[first_end:]
 
         if highlight and key in field_values:
             from docx.oxml.ns import nsdecls, qn
@@ -629,7 +824,3 @@ def _replace_in_paragraph(paragraph, field_values: dict[str, str], highlight: bo
             rPr = first_run._element.get_or_add_rPr()
             if rPr.find(qn("w:highlight")) is None:
                 rPr.append(parse_xml(f'<w:highlight {nsdecls("w")} w:val="yellow"/>'))
-
-        for idx, seg_start, seg_end in run_segments[1:]:
-            run = runs[idx]
-            run.text = run.text[:seg_start] + run.text[seg_end:]

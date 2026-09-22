@@ -73,6 +73,7 @@ class TemplateFieldBase(BaseModel):
     required: bool = True
     placeholder: str = ""
     options: str = ""
+    depends_on: str | None = None
 
 
 class TemplateFieldCreate(TemplateFieldBase):

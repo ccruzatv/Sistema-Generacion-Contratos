@@ -44,6 +44,7 @@ _migrate_add_column_if_missing("bundle_items", "draft_values", "CLOB DEFAULT ''"
 _migrate_add_column_if_missing("bundle_items", "is_optional", "NUMBER(1) DEFAULT 0")
 _migrate_add_column_if_missing("users", "token_expires_at", "DATE")
 _migrate_add_column_if_missing("users", "jurisdiccion", "VARCHAR2(100)")
+_migrate_add_column_if_missing("template_fields", "depends_on", "VARCHAR2(255)")
 
 # Ensure tabla_tribunales fields are not required
 with engine.connect() as _conn:
