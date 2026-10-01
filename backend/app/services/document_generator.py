@@ -714,6 +714,7 @@ def add_pending_footer(docx_path: str, output_path: str, field_values: dict | No
         doc = Document(template_path)
         jurisdiccion_tabla = field_values.get(_TABLA_KEY)
         text_values = {k: v for k, v in field_values.items() if k != _TABLA_KEY}
+        _resolve_parametrized_blocks(doc, text_values)
         _apply_replacements(doc, text_values, highlight=True)
         if jurisdiccion_tabla:
             _replace_tabla_tribunales(doc, jurisdiccion_tabla)
