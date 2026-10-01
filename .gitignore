@@ -9,6 +9,7 @@ backend/templates/*.docx
 !backend/templates/ejemplo_contrato.docx
 !backend/templates/base_tecnica_licitacion.docx
 !backend/templates/resolucion_adjudicacion.docx
+!backend/templates/contrato_aseo_e_insumos.docx
 node_modules/
 dist/
 .vite/
