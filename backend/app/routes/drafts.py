@@ -13,6 +13,7 @@ from ..models import User, UserDocument, DraftSubmission, Notification, Document
 from ..services.auth import get_current_user, require_admin
 from ..services.email_service import send_draft_notification_email, send_approval_email, send_rejection_email
 from ..services.document_generator import GENERATED_DIR, add_validation_footer, add_pending_footer, convert_to_pdf
+from ..services.antecedentes import normalize_carpeta_url, bundle_for_document, validadores_payload
 
 try:
     CHILE_TZ = ZoneInfo("America/Santiago")
@@ -49,6 +50,21 @@ def _submission_number(db: Session, submission: DraftSubmission) -> int:
 class SubmitDraftRequest(BaseModel):
     document_id: int
     comment: str = ""
+    # Mejora M3: carpeta virtual de antecedentes y declaración de su existencia.
+    carpeta_url: str = ""
+    antecedentes_confirmados: bool = False
+
+
+def _antecedentes_payload(db: Session, submission: DraftSubmission) -> dict:
+    """Datos de antecedentes del contrato visibles para el revisor (M1 a M4)."""
+    bundle = bundle_for_document(db, submission.document_id)
+    return {
+        "sgf_id": (bundle.sgf_id or "") if bundle else "",
+        "expediente_correlativo": bundle.correlativo if bundle else None,
+        "carpeta_url": submission.carpeta_url or ((bundle.carpeta_url or "") if bundle else ""),
+        "antecedentes_confirmados": bool(submission.antecedentes_confirmados),
+        "validadores": validadores_payload(db, submission.document_id),
+    }
 
 
 class ReviewDraftRequest(BaseModel):
@@ -86,16 +102,36 @@ def submit_draft(
     if existing_pending:
         raise HTTPException(status_code=400, detail="Este documento ya tiene un envío pendiente de revisión")
 
+    # Mejora M3: el envío a revisión exige indicar la carpeta virtual de
+    # antecedentes (o tenerla registrada en el expediente) y declarar que los
+    # antecedentes que validan la información del contrato existen en ella.
+    bundle = bundle_for_document(db, doc.id)
+    carpeta_url = normalize_carpeta_url(request.carpeta_url) or ((bundle.carpeta_url or "") if bundle else "")
+    if not carpeta_url:
+        raise HTTPException(
+            status_code=400,
+            detail="Debe indicar el enlace a la carpeta virtual de antecedentes del contrato",
+        )
+    if not request.antecedentes_confirmados:
+        raise HTTPException(
+            status_code=400,
+            detail="Debe declarar que la carpeta contiene los antecedentes que validan la información del contrato",
+        )
+    if bundle and not bundle.carpeta_url:
+        bundle.carpeta_url = carpeta_url
+
     submitter_comment = (request.comment or "").strip()
     submission = DraftSubmission(
         document_id=doc.id,
         submitted_by=user.id,
         status="pendiente",
         submitter_comment=submitter_comment,
+        carpeta_url=carpeta_url,
+        antecedentes_confirmados=1,
     )
     db.add(submission)
 
-    event_detail = "Borrador enviado para validación"
+    event_detail = "Borrador enviado para validación. Se declara carpeta de antecedentes: " + carpeta_url
     if submitter_comment:
         event_detail += f". Comentario del solicitante: {submitter_comment}"
     event = DocumentEvent(
@@ -126,6 +162,31 @@ def submit_draft(
 
     db.commit()
     return {"message": "Borrador enviado para revisión"}
+
+
+@router.get("/submit-context/{doc_id}")
+def submit_context(
+    doc_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Datos para precargar el envío a revisión: ID de SGF y carpeta de
+    antecedentes registrados en el expediente del documento."""
+    doc = (
+        db.query(UserDocument)
+        .filter(UserDocument.id == doc_id, UserDocument.user_id == user.id)
+        .first()
+    )
+    if not doc:
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+    bundle = bundle_for_document(db, doc.id)
+    return {
+        "document_id": doc.id,
+        "expediente_id": bundle.id if bundle else None,
+        "expediente_correlativo": bundle.correlativo if bundle else None,
+        "sgf_id": (bundle.sgf_id or "") if bundle else "",
+        "carpeta_url": (bundle.carpeta_url or "") if bundle else "",
+    }
 
 
 @router.get("/my-submissions")
@@ -206,6 +267,7 @@ def pending_reviews(
             "reviewed_at": s.reviewed_at.isoformat() if s.reviewed_at else None,
             "reviewer_name": s.reviewer.name if s.reviewer else None,
             "submission_number": _submission_number(db, s),
+            **_antecedentes_payload(db, s),
         })
     return results
 
@@ -250,6 +312,7 @@ def reviewed_submissions(
             "reviewer_name": s.reviewer.name if s.reviewer else None,
             "reviewer_role": s.reviewer.role if s.reviewer else None,
             "submission_number": _submission_number(db, s),
+            **_antecedentes_payload(db, s),
         })
     return results
 
@@ -477,6 +540,10 @@ async def resubmit_corrected(
         submitted_by=user.id,
         status="pendiente",
         submitter_comment=submitter_comment,
+        carpeta_url=rejected_submission.carpeta_url or (
+            (bundle_for_document(db, doc.id).carpeta_url or "") if bundle_for_document(db, doc.id) else ""
+        ),
+        antecedentes_confirmados=rejected_submission.antecedentes_confirmados or 0,
     ))
 
     correction_count = (

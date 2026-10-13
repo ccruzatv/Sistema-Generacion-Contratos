@@ -16,6 +16,9 @@ export default function Expedientes() {
   const [newTypeId, setNewTypeId] = useState("");
   const [newNombre, setNewNombre] = useState("");
   const [newJurisdiccion, setNewJurisdiccion] = useState("");
+  // Mejoras M1 y M2: ID de SGF y carpeta virtual de antecedentes
+  const [newSgfId, setNewSgfId] = useState("");
+  const [newCarpetaUrl, setNewCarpetaUrl] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -50,11 +53,15 @@ export default function Expedientes() {
         category_id: Number(newTypeId),
         nombre_licitacion: newNombre.trim(),
         jurisdiccion: newJurisdiccion,
+        sgf_id: newSgfId.trim(),
+        carpeta_url: newCarpetaUrl.trim(),
       });
       setShowNew(false);
       setNewTypeId("");
       setNewNombre("");
       setNewJurisdiccion("");
+      setNewSgfId("");
+      setNewCarpetaUrl("");
       navigate(`/expediente/${bundle.id}`);
     } catch (err) {
       setError(err.message);
@@ -130,6 +137,31 @@ export default function Expedientes() {
               </div>
               <div className="md:col-span-2">
                 <JurisdiccionSelector value={newJurisdiccion} onChange={setNewJurisdiccion} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
+                  ID de SGF <span className="text-[#112d86]/40 font-normal text-xs">(opcional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={newSgfId}
+                  onChange={(e) => setNewSgfId(e.target.value)}
+                  maxLength={50}
+                  placeholder="Ej: 12345"
+                  className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#112d86]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
+                  Carpeta de antecedentes <span className="text-[#112d86]/40 font-normal text-xs">(enlace https)</span>
+                </label>
+                <input
+                  type="url"
+                  value={newCarpetaUrl}
+                  onChange={(e) => setNewCarpetaUrl(e.target.value)}
+                  placeholder="https://..."
+                  className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#112d86]/30"
+                />
               </div>
             </div>
             <div className="bg-[#112d86]/5 rounded-lg p-3">
@@ -209,6 +241,7 @@ export default function Expedientes() {
                 String(b.correlativo).includes(q) ||
                 (b.category_name || "").toLowerCase().includes(q) ||
                 (b.nombre_licitacion || "").toLowerCase().includes(q) ||
+                (b.sgf_id || "").toLowerCase().includes(q) ||
                 (b.jurisdiccion || "").toLowerCase().includes(q)
               );
             })
@@ -240,6 +273,9 @@ export default function Expedientes() {
                       )}
                       {b.jurisdiccion && (
                         <p className="text-xs text-[#112d86]/40 mt-0.5">{b.jurisdiccion}</p>
+                      )}
+                      {b.sgf_id && (
+                        <p className="text-xs text-[#112d86]/60 mt-0.5">ID SGF: {b.sgf_id}</p>
                       )}
                     </div>
                     <div className="text-right shrink-0">

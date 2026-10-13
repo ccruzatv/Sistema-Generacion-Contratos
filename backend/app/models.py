@@ -124,6 +124,11 @@ class DraftSubmission(Base):
     status = Column(String(50), nullable=False, default="pendiente")  # pendiente, aprobado, rechazado
     comment = Column(Text, default="")
     submitter_comment = Column(Text, default="")
+    # Mejora M3 (acta Jurídico 02.10.2026): al enviar a revisión se declara la
+    # carpeta virtual de antecedentes y la existencia de los antecedentes que
+    # validan la información del contrato.
+    carpeta_url = Column(String(1000), default="")
+    antecedentes_confirmados = Column(SmallInteger, CheckConstraint("antecedentes_confirmados IN (0,1)"), default=0)
     submitted_at = Column(DateTime, default=lambda: _now_chile())
     reviewed_at = Column(DateTime, nullable=True)
 
@@ -170,6 +175,10 @@ class DocumentBundle(Base):
     category_name = Column(String(255), default="")
     jurisdiccion = Column(String(255), default="")
     nombre_licitacion = Column(String(500), default="")
+    # Mejora M1: ID del proceso en SGF, para seguimiento y futura relación entre sistemas.
+    sgf_id = Column(String(50), default="")
+    # Mejora M2: enlace a la carpeta virtual de antecedentes del contrato.
+    carpeta_url = Column(String(1000), default="")
     created_at = Column(DateTime, default=lambda: _now_chile())
 
     user = relationship("User", back_populates="bundles")
@@ -240,3 +249,21 @@ class UploadLog(Base):
     record_count = Column(Integer, default=0)
     uploaded_by = Column(String(255), default="")
     created_at = Column(DateTime, default=lambda: _now_chile())
+
+
+class DocumentoValidador(Base):
+    """Mejora M4: documento validador (escritura pública, acta u otro) que
+    respalda la modificación de un contrato ya enviado como borrador."""
+    __tablename__ = "documentos_validadores"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("user_documents.id"), nullable=False, index=True)
+    submission_id = Column(Integer, ForeignKey("draft_submissions.id"), nullable=True, index=True)
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    motivo = Column(Text, default="")
+    filename = Column(String(500), nullable=False)
+    stored_path = Column(String(500), nullable=False)
+    created_at = Column(DateTime, default=lambda: _now_chile())
+
+    document = relationship("UserDocument")
+    uploader = relationship("User")

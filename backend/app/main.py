@@ -45,6 +45,11 @@ _migrate_add_column_if_missing("bundle_items", "is_optional", "NUMBER(1) DEFAULT
 _migrate_add_column_if_missing("users", "token_expires_at", "DATE")
 _migrate_add_column_if_missing("users", "jurisdiccion", "VARCHAR2(100)")
 _migrate_add_column_if_missing("template_fields", "depends_on", "VARCHAR2(255)")
+# Mejoras acta Departamento Jurídico 02.10.2026 (M1, M2 y M3)
+_migrate_add_column_if_missing("document_bundles", "sgf_id", "VARCHAR2(50)")
+_migrate_add_column_if_missing("document_bundles", "carpeta_url", "VARCHAR2(1000)")
+_migrate_add_column_if_missing("draft_submissions", "carpeta_url", "VARCHAR2(1000)")
+_migrate_add_column_if_missing("draft_submissions", "antecedentes_confirmados", "NUMBER(1) DEFAULT 0")
 
 # Ensure tabla_tribunales fields are not required
 with engine.connect() as _conn:
@@ -83,7 +88,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Sistema de Generación Automatizada de Contratos",
     description="SGAC - Generador de contratos - Poder Judicial de Chile",
-    version="2.0.0",
+    version="2.1.0",
 )
 
 app.state.limiter = limiter

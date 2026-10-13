@@ -240,13 +240,43 @@ export async function getDocumentEvents(docId) {
 
 // ── Drafts ──
 
-export async function submitDraft(documentId, comment = "") {
+// Mejora M3: el envío a revisión incluye la carpeta virtual de antecedentes y
+// la declaración de que contiene los antecedentes que validan el contrato.
+export async function submitDraft(documentId, comment = "", antecedentes = {}) {
   const res = await request("/drafts/submit", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ document_id: documentId, comment }),
+    body: JSON.stringify({
+      document_id: documentId,
+      comment,
+      carpeta_url: antecedentes.carpetaUrl || "",
+      antecedentes_confirmados: !!antecedentes.confirmados,
+    }),
   });
   return res.json();
+}
+
+export async function getSubmitContext(documentId) {
+  const res = await request(`/drafts/submit-context/${documentId}`);
+  return res.json();
+}
+
+// Mejora M4: modificar un contrato pendiente de revisión con documento validador.
+export async function modifyPendingDocument(docId, templateId, fieldValues, motivo, validadorFile) {
+  const formData = new FormData();
+  formData.append("template_id", String(templateId));
+  formData.append("field_values_json", JSON.stringify(fieldValues));
+  formData.append("motivo", motivo);
+  formData.append("validador", validadorFile);
+  const res = await request(`/documents/modify-pending/${docId}`, {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+}
+
+export function getValidadorDownloadUrl(validadorId) {
+  return `${API_BASE}/documents/validadores/${validadorId}`;
 }
 
 export async function getMySubmissions() {
@@ -323,6 +353,16 @@ export async function createBundle(data) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+// Mejoras M1 y M2: ID de SGF y carpeta virtual de antecedentes del expediente.
+export async function updateBundleAntecedentes(bundleId, { sgfId = "", carpetaUrl = "" }) {
+  const res = await request(`/bundles/${bundleId}/antecedentes`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sgf_id: sgfId, carpeta_url: carpetaUrl }),
   });
   return res.json();
 }

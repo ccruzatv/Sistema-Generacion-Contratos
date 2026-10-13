@@ -9,7 +9,7 @@ import {
   getDocxDownloadUrl,
   getPdfDownloadUrl,
   getAuthHeaderForDownload,
-  submitDraft,
+  modifyPendingDocument,
   getPreviewPdfUrl,
   linkBundleItem,
   saveBundleItemDraft,
@@ -18,6 +18,7 @@ import DynamicForm from "../components/DynamicForm";
 import JurisdiccionSelector from "../components/JurisdiccionSelector";
 import InsumoUpload from "../components/InsumoUpload";
 import { useToast } from "../components/Toast";
+import SubmitDraftModal from "../components/SubmitDraftModal";
 
 // El backend nombra cada campo canónico de extracción igual que el marcador
 // real de la plantilla (normalizado): MONTO -> "monto", DURACION_DEL_SERVICIO
@@ -61,6 +62,8 @@ export default function GenerateDocument() {
   const location = useLocation();
   const editData = location.state?.editData || null;
   const correctionDocId = location.state?.correctionDocId || null;
+  // Mejora M4: modificación de un contrato pendiente de revisión con documento validador
+  const modifyPendingDocId = location.state?.modifyPendingDocId || null;
   const bundleId = location.state?.bundleId || null;
   const bundleItemId = location.state?.bundleItemId || null;
 
@@ -84,6 +87,9 @@ export default function GenerateDocument() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [insumos, setInsumos] = useState([]);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [motivo, setMotivo] = useState("");
+  const [validadorFile, setValidadorFile] = useState(null);
 
   const isOperativo = user?.role === "operativo";
   const autoFillValues = matchInsumosToFields(insumos, template?.fields);
@@ -127,19 +133,31 @@ export default function GenerateDocument() {
       setError("Seleccione la Jurisdicción");
       return;
     }
+    if (modifyPendingDocId) {
+      if (motivo.trim().length < 10) {
+        setError("Indique el motivo de la modificación (mínimo 10 caracteres)");
+        return;
+      }
+      if (!validadorFile) {
+        setError("Adjunte el documento validador (escritura pública, acta u otro)");
+        return;
+      }
+    }
     setLoading(true);
     setError("");
     setResult(null);
     try {
       const payload = { ...values, jurisdiccion };
       const insumoIds = insumos.map((i) => i.id);
-      const data = correctionDocId
+      const data = modifyPendingDocId
+        ? await modifyPendingDocument(modifyPendingDocId, Number(selectedId), payload, motivo.trim(), validadorFile)
+        : correctionDocId
         ? await regenerateDocument(correctionDocId, Number(selectedId), payload, insumoIds)
         : await generateDocument(Number(selectedId), payload, insumoIds);
       setResult(data);
 
       // Link to bundle item if we came from an expediente
-      if (bundleId && bundleItemId && data.document_id) {
+      if (!modifyPendingDocId && bundleId && bundleItemId && data.document_id) {
         try {
           await linkBundleItem(bundleId, bundleItemId, data.document_id);
         } catch {
@@ -200,14 +218,10 @@ export default function GenerateDocument() {
     }
   }
 
-  async function handleSubmitDraft() {
+  function handleSubmitDraft() {
+    // Mejora M3: el envío solicita la carpeta de antecedentes y la declaración
     if (!result?.document_id) return;
-    try {
-      await submitDraft(result.document_id, draftComment.trim());
-      setDraftSent(true);
-    } catch (err) {
-      toast("Error: " + err.message, "error");
-    }
+    setShowSubmitModal(true);
   }
 
   function handleAfterGenerate() {
@@ -222,10 +236,12 @@ export default function GenerateDocument() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-[#112d86]">
-          {correctionDocId ? "Corregir Documento" : bundleId ? "Generar Documento" : "Generar Contratos"}
+          {modifyPendingDocId ? "Modificar Contrato en Revisión" : correctionDocId ? "Corregir Documento" : bundleId ? "Generar Documento" : "Generar Contratos"}
         </h1>
         <p className="text-sm text-[#112d86]/60 mt-1">
-          {correctionDocId
+          {modifyPendingDocId
+            ? "Modifique los campos afectados por el nuevo antecedente legal y adjunte el documento validador"
+            : correctionDocId
             ? "Modifique los campos necesarios y guarde para reenviar a validación"
             : bundleId
             ? "Complete los campos para generar este documento del expediente"
@@ -233,7 +249,7 @@ export default function GenerateDocument() {
         </p>
       </div>
 
-      {!bundleId && !correctionDocId && (
+      {!bundleId && !correctionDocId && !modifyPendingDocId && (
         <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
           <label className="block text-sm font-medium text-[#112d86] mb-2">Seleccione una plantilla</label>
           {loadingTemplates ? (
@@ -273,7 +289,40 @@ export default function GenerateDocument() {
               <JurisdiccionSelector value={jurisdiccion} onChange={setJurisdiccion} />
             )}
           </div>
-          <InsumoUpload insumos={insumos} onChange={setInsumos} />
+          {modifyPendingDocId ? (
+            <div className="bg-white rounded-xl shadow-sm border border-[#c8a84e]/40 p-6 space-y-3">
+              <h2 className="text-sm font-semibold text-[#112d86]">Documento validador</h2>
+              <p className="text-xs text-[#112d86]/60">
+                Todo cambio a un contrato ya enviado a revisión debe respaldarse con un documento validador
+                (escritura pública u otro; para representantes de la Dirección, el acta).
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
+                  Motivo de la modificación <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={motivo}
+                  onChange={(e) => setMotivo(e.target.value)}
+                  rows={2}
+                  placeholder="Ej: cambio de representante legal según escritura pública de fecha..."
+                  className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[#112d86] mb-1">
+                  Archivo validador (PDF, Word, PNG o JPG) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.png,.jpg,.jpeg"
+                  onChange={(e) => setValidadorFile(e.target.files?.[0] || null)}
+                  className="text-sm"
+                />
+              </div>
+            </div>
+          ) : (
+            <InsumoUpload insumos={insumos} onChange={setInsumos} />
+          )}
 
           <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-6">
             <h2 className="text-lg font-semibold text-[#112d86] mb-1">{template.name}</h2>
@@ -336,11 +385,13 @@ export default function GenerateDocument() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-green-800 font-medium">
-              {correctionDocId ? "Documento corregido y reenviado a validación" : "Documento generado exitosamente"}
+              {modifyPendingDocId
+                ? "Contrato modificado con documento validador; se mantiene en revisión"
+                : correctionDocId ? "Documento corregido y reenviado a validación" : "Documento generado exitosamente"}
             </p>
           </div>
 
-          {(correctionDocId || bundleId) ? (
+          {(correctionDocId || bundleId || modifyPendingDocId) ? (
             <button
               onClick={handleAfterGenerate}
               className="w-full text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-colors"
@@ -413,6 +464,19 @@ export default function GenerateDocument() {
             </div>
           )}
         </div>
+      )}
+
+      {showSubmitModal && result?.document_id && (
+        <SubmitDraftModal
+          documentId={result.document_id}
+          initialComment={draftComment}
+          showComment={false}
+          onClose={() => setShowSubmitModal(false)}
+          onSubmitted={() => {
+            setShowSubmitModal(false);
+            setDraftSent(true);
+          }}
+        />
       )}
     </div>
   );

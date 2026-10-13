@@ -1,16 +1,18 @@
 import os
 import json
 import uuid
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Template, User, UserDocument, DocumentEvent, DraftSubmission, InsumoDocumento
+from ..models import Template, User, UserDocument, DocumentEvent, DraftSubmission, InsumoDocumento, Notification, DocumentoValidador
 from ..schemas import DocumentGenerateRequest
 from ..services.document_generator import generate_document, convert_to_pdf, add_draft_marker, add_validation_footer, GENERATED_DIR
 from ..services.text_review import review_field_values
 from ..services.auth import get_current_user
+from ..services.antecedentes import validate_validador_file, bundle_for_document
+from ..services.email_service import send_draft_notification_email
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
@@ -187,10 +189,15 @@ def regenerate_document_corrected(
 
     # A new submission cycle is created (rather than reusing the rejected one)
     # so the rejection's comment and reviewer stay intact as history.
+    # La declaración de carpeta y antecedentes (mejora M3) del ciclo rechazado
+    # se mantiene en el nuevo ciclo de revisión.
+    _bundle = bundle_for_document(db, doc.id)
     new_submission = DraftSubmission(
         document_id=doc.id,
         submitted_by=user.id,
         status="pendiente",
+        carpeta_url=rejected_submission.carpeta_url or ((_bundle.carpeta_url or "") if _bundle else ""),
+        antecedentes_confirmados=rejected_submission.antecedentes_confirmados or 0,
     )
     db.add(new_submission)
 
@@ -221,6 +228,140 @@ def regenerate_document_corrected(
     db.commit()
 
     return {"message": "Documento corregido exitosamente", "document_id": doc.id, "docx_filename": doc.docx_filename}
+
+
+VALIDADORES_DIR = os.path.join(GENERATED_DIR, "validadores")
+
+
+@router.post("/modify-pending/{doc_id}")
+def modify_pending_document(
+    doc_id: int,
+    template_id: int = Form(...),
+    field_values_json: str = Form(...),
+    motivo: str = Form(...),
+    validador: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mejora M4: permite modificar un contrato ya enviado como borrador
+    (pendiente de revisión) cuando se requiere un nuevo antecedente legal, por
+    ejemplo el cambio de nombre de un representante legal. Todo cambio exige
+    un documento validador (escritura pública, acta u otro) y un motivo, que
+    quedan registrados y visibles para el revisor."""
+    doc = db.query(UserDocument).filter(UserDocument.id == doc_id, UserDocument.user_id == user.id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+    submission = doc.latest_submission
+    if not submission or submission.status != "pendiente":
+        raise HTTPException(
+            status_code=400,
+            detail="Solo se pueden modificar con documento validador los contratos enviados y pendientes de revisión",
+        )
+
+    motivo = (motivo or "").strip()
+    if len(motivo) < 10:
+        raise HTTPException(status_code=400, detail="Indique el motivo de la modificación (mínimo 10 caracteres)")
+
+    try:
+        field_values = json.loads(field_values_json)
+    except (json.JSONDecodeError, TypeError):
+        raise HTTPException(status_code=400, detail="Valores de campos inválidos")
+    if not isinstance(field_values, dict) or not all(
+        isinstance(k, str) and isinstance(v, str) for k, v in field_values.items()
+    ):
+        raise HTTPException(status_code=400, detail="Valores de campos inválidos")
+
+    template = db.query(Template).filter(Template.id == template_id).first()
+    if not template or not os.path.exists(_resolve_template_path(template.file_path)):
+        raise HTTPException(status_code=404, detail="Plantilla no encontrada")
+    if doc.template_id_ref and doc.template_id_ref != template.id:
+        raise HTTPException(status_code=400, detail="La plantilla no corresponde al documento")
+
+    content = validador.file.read()
+    ext = validate_validador_file(validador.filename, content)
+
+    os.makedirs(VALIDADORES_DIR, exist_ok=True)
+    original_name = os.path.basename(validador.filename or f"validador{ext}")
+    stored_name = f"{uuid.uuid4().hex[:12]}{ext}"
+    stored_path = os.path.join(VALIDADORES_DIR, stored_name)
+    with open(stored_path, "wb") as f:
+        f.write(content)
+
+    reviewed_values = review_field_values(field_values)
+    output_name = doc.docx_filename.replace(".docx", "")
+    try:
+        regen_path = generate_document(_resolve_template_path(template.file_path), reviewed_values, output_name)
+        try:
+            add_draft_marker(regen_path)
+        except Exception:
+            pass
+    except Exception as e:
+        if os.path.exists(stored_path):
+            os.remove(stored_path)
+        raise HTTPException(status_code=500, detail=f"Error al regenerar documento: {str(e)}")
+
+    pdf_path = os.path.join(GENERATED_DIR, output_name + ".pdf")
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+
+    doc.field_values_json = json.dumps(field_values, ensure_ascii=False)
+    db.add(DocumentoValidador(
+        document_id=doc.id,
+        submission_id=submission.id,
+        uploaded_by=user.id,
+        motivo=motivo,
+        filename=original_name,
+        stored_path=stored_name,
+    ))
+    db.add(DocumentEvent(
+        document_id=doc.id,
+        action="modificado",
+        actor_id=user.id,
+        actor_role=user.role,
+        detail=f"Contrato modificado durante la revisión con documento validador \"{original_name}\". Motivo: {motivo}",
+    ))
+
+    admins = db.query(User).filter(User.role.in_(["admin", "superadmin"]), User.is_active == 1).all()
+    for admin in admins:
+        db.add(Notification(
+            user_id=admin.id,
+            message=f"{user.name} modificó el borrador \"{doc.document_name}\" con un documento validador. Motivo: {motivo}",
+            link="/admin/reviews",
+        ))
+        send_draft_notification_email(
+            to_email=admin.email,
+            admin_name=admin.name,
+            submitter_name=user.name,
+            document_name=doc.document_name,
+        )
+
+    db.commit()
+    return {"message": "Contrato modificado con documento validador", "document_id": doc.id, "docx_filename": doc.docx_filename}
+
+
+@router.get("/validadores/{validador_id}")
+def download_validador(
+    validador_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Descarga de un documento validador: solo el autor del documento y los
+    perfiles revisores (admin y superadmin)."""
+    validador = db.query(DocumentoValidador).filter(DocumentoValidador.id == validador_id).first()
+    if not validador:
+        raise HTTPException(status_code=404, detail="Documento validador no encontrado")
+    owner_id = validador.document.user_id if validador.document else None
+    if user.role not in ("admin", "superadmin") and user.id != owner_id:
+        raise HTTPException(status_code=403, detail="No tiene permiso para descargar este documento")
+
+    stored = validador.stored_path
+    if not stored or any(c in stored for c in ("/", "\\", "..")):
+        raise HTTPException(status_code=400, detail="Nombre de archivo inválido")
+    path = os.path.abspath(os.path.join(VALIDADORES_DIR, stored))
+    if not path.startswith(os.path.abspath(VALIDADORES_DIR)) or not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="Archivo no encontrado")
+    return FileResponse(path, filename=validador.filename)
 
 
 @router.get("/download/{filename}")
