@@ -2,7 +2,20 @@
 
 **Subdepartamento de Mejoramiento Continuo - Poder Judicial de Chile**
 
-**Versión:** 2.0.0 | **Fecha:** 14.08.2026
+**Versión:** 2.1.0 | **Fecha:** 13.10.2026
+
+## Cambios v2.1.0 (mejoras levantadas en la revisión con el Departamento Jurídico, 02.10.2026)
+
+| Código | Mejora | Implementación |
+|--------|--------|----------------|
+| M1 | ID de SGF en cada contrato | Campo `sgf_id` en el expediente (creación, edición y vista del revisor) |
+| M2 | Vínculo con la carpeta virtual de antecedentes | Campo `carpeta_url` en el expediente, con validación de enlace https |
+| M3 | Flujo de aprobación con declaración de carpeta y antecedentes | El envío a revisión exige la carpeta y la declaración; el revisor las ve en su bandeja |
+| M4 | Cambios en contratos ya enviados con documento validador | Modificación de contratos pendientes de revisión con motivo y documento validador obligatorios (tabla `documentos_validadores`) |
+
+Nuevos endpoints: `PUT /api/bundles/{id}/antecedentes`, `GET /api/drafts/submit-context/{doc_id}`,
+`POST /api/documents/modify-pending/{doc_id}` y `GET /api/documents/validadores/{id}`.
+Las columnas nuevas se agregan automáticamente al iniciar el backend (Oracle y SQLite local).
 
 Aplicación web para generar y gestionar documentos de contrato (Word/PDF) a partir de plantillas con campos dinámicos. Incluye flujo de validación de borradores, expedientes de contrato, descarga de documentos aprobados y trazabilidad completa.
 

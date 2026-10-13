@@ -11,11 +11,12 @@ import {
   getBundleDownloadAllDocxUrl,
   getAuthHeaderForDownload,
   getPreviewPdfUrl,
-  submitDraft,
   generateDocument,
   linkBundleItem,
   getDocumentFields,
+  updateBundleAntecedentes,
 } from "../services/api";
+import SubmitDraftModal from "../components/SubmitDraftModal";
 
 export default function Expediente() {
   const { bundleId } = useParams();
@@ -33,6 +34,12 @@ export default function Expediente() {
   const [search, setSearch] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [submitDocId, setSubmitDocId] = useState(null);
+  // Mejoras M1 y M2: ID de SGF y carpeta virtual de antecedentes del expediente
+  const [editingAnt, setEditingAnt] = useState(false);
+  const [sgfInput, setSgfInput] = useState("");
+  const [carpetaInput, setCarpetaInput] = useState("");
+  const [savingAnt, setSavingAnt] = useState(false);
 
   async function loadBundle() {
     setLoading(true);
@@ -102,16 +109,55 @@ export default function Expediente() {
     );
   }
 
-  async function handleSubmitDraft(documentId) {
-    if (!await confirm("¿Enviar este documento para revisión de jefatura?", { confirmLabel: "Enviar", title: "Enviar borrador" })) return;
-    setSubmittingId(documentId);
+  function handleSubmitDraft(documentId) {
+    // Mejora M3: el envío se realiza desde el modal que solicita la carpeta
+    // de antecedentes y la declaración de su existencia.
+    setSubmitDocId(documentId);
+  }
+
+  async function handleSubmitted() {
+    setSubmitDocId(null);
+    toast("Borrador enviado exitosamente.", "success");
+    await loadBundle();
+  }
+
+  function startEditAntecedentes() {
+    setSgfInput(bundle?.sgf_id || "");
+    setCarpetaInput(bundle?.carpeta_url || "");
+    setEditingAnt(true);
+  }
+
+  async function handleSaveAntecedentes() {
+    setSavingAnt(true);
     try {
-      await submitDraft(documentId);
-      toast("Borrador enviado exitosamente.", "success");
+      const data = await updateBundleAntecedentes(Number(bundleId), {
+        sgfId: sgfInput.trim(),
+        carpetaUrl: carpetaInput.trim(),
+      });
+      setBundle((prev) => ({ ...prev, sgf_id: data.sgf_id, carpeta_url: data.carpeta_url }));
+      setEditingAnt(false);
+      toast("Antecedentes del expediente actualizados.", "success");
     } catch (err) {
       toast("Error: " + err.message, "error");
     } finally {
-      setSubmittingId(null);
+      setSavingAnt(false);
+    }
+  }
+
+  async function handleModifyPending(item) {
+    // Mejora M4: modificar un contrato pendiente de revisión con documento validador
+    try {
+      const fieldsData = await getDocumentFields(item.document_id);
+      navigate(`/generate/${item.template_id}`, {
+        state: {
+          bundleId: Number(bundleId),
+          jurisdiccion: bundle?.jurisdiccion || "",
+          editData: { field_values: fieldsData.field_values },
+          modifyPendingDocId: item.document_id,
+        },
+      });
+    } catch (err) {
+      toast("Error al cargar el documento: " + err.message, "error");
     }
   }
 
@@ -223,6 +269,79 @@ export default function Expediente() {
             {bundle.jurisdiccion && <span className="ml-2 text-[#112d86]/40">· {bundle.jurisdiccion}</span>}
           </p>
         </div>
+      </div>
+
+      {/* Antecedentes del contrato (mejoras M1 y M2) */}
+      <div className="bg-white rounded-xl shadow-sm border border-[#112d86]/10 p-5">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm font-medium text-[#112d86]">Antecedentes del contrato</span>
+          {!editingAnt && (
+            <button
+              onClick={startEditAntecedentes}
+              className="text-xs font-medium text-[#112d86]/60 hover:text-[#112d86] transition-colors"
+            >
+              Editar
+            </button>
+          )}
+        </div>
+        {editingAnt ? (
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-[#112d86] mb-1">ID de SGF</label>
+              <input
+                type="text"
+                value={sgfInput}
+                onChange={(e) => setSgfInput(e.target.value)}
+                maxLength={50}
+                placeholder="Ej: 12345"
+                className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-[#112d86] mb-1">Enlace a la carpeta virtual de antecedentes</label>
+              <input
+                type="url"
+                value={carpetaInput}
+                onChange={(e) => setCarpetaInput(e.target.value)}
+                placeholder="https://..."
+                className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setEditingAnt(false)}
+                disabled={savingAnt}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-[#112d86]/60 hover:bg-[#112d86]/5"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveAntecedentes}
+                disabled={savingAnt}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#112d86] hover:bg-[#1a3a9e] disabled:opacity-50"
+              >
+                {savingAnt ? "Guardando..." : "Guardar"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-[11px] text-[#112d86]/50">ID de SGF</p>
+              <p className="font-medium text-[#112d86]">{bundle.sgf_id || <span className="text-[#c8a84e] font-normal">Sin registrar</span>}</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] text-[#112d86]/50">Carpeta de antecedentes</p>
+              {bundle.carpeta_url ? (
+                <a href={bundle.carpeta_url} target="_blank" rel="noopener noreferrer" className="font-medium text-[#112d86] underline break-all">
+                  Abrir carpeta
+                </a>
+              ) : (
+                <p className="text-[#c8a84e]">Sin registrar</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Progress card */}
@@ -404,6 +523,17 @@ export default function Expediente() {
                           Enviar
                         </button>
                       )}
+                      {isOperativo && item.submission_status === "pendiente" && (
+                        <button
+                          onClick={() => handleModifyPending(item)}
+                          className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all"
+                          style={{ background: "linear-gradient(135deg, #c8a84e, #b09640)" }}
+                          title="Modificar el contrato por un nuevo antecedente legal (requiere documento validador)"
+                        >
+                          Modificar con validador
+                        </button>
+                      )}
+                      {item.submission_status !== "pendiente" && (
                       <button
                         onClick={() => handleGenerate(item)}
                         className="inline-flex items-center gap-1 bg-[#112d86]/8 text-[#112d86] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#112d86]/15 transition-colors"
@@ -412,6 +542,7 @@ export default function Expediente() {
                         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
                         {isRejected ? "Reeditar" : "Regenerar"}
                       </button>
+                      )}
                     </>
                   ) : item.template_id ? (
                     item.has_fields === false ? (
@@ -580,10 +711,17 @@ export default function Expediente() {
                             Enviar
                           </button>
                         )}
+                        {isOperativo && item.submission_status === "pendiente" && (
+                          <button onClick={() => handleModifyPending(item)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all" style={{ background: "linear-gradient(135deg, #c8a84e, #b09640)" }} title="Modificar el contrato por un nuevo antecedente legal (requiere documento validador)">
+                            Modificar con validador
+                          </button>
+                        )}
+                        {item.submission_status !== "pendiente" && (
                         <button onClick={() => handleGenerate(item)} className="inline-flex items-center gap-1 bg-[#112d86]/8 text-[#112d86] py-1.5 px-2.5 rounded-lg text-xs font-medium hover:bg-[#112d86]/15 transition-colors" title={isRejected ? "Reeditar y corregir el documento" : "Regenerar documento"}>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
                           {isRejected ? "Reeditar" : "Regenerar"}
                         </button>
+                        )}
                       </>
                     ) : item.template_id ? (
                       item.has_fields === false ? (
@@ -636,6 +774,15 @@ export default function Expediente() {
             </div>
           </div>
         </div>
+      )}
+
+      {submitDocId && (
+        <SubmitDraftModal
+          documentId={submitDocId}
+          showComment={false}
+          onClose={() => setSubmitDocId(null)}
+          onSubmitted={handleSubmitted}
+        />
       )}
 
       {/* Footer actions */}

@@ -49,6 +49,11 @@ if engine.dialect.name == "oracle":
     _migrate_add_column_if_missing("users", "token_expires_at", "DATE")
     _migrate_add_column_if_missing("users", "jurisdiccion", "VARCHAR2(100)")
     _migrate_add_column_if_missing("template_fields", "depends_on", "VARCHAR2(255)")
+    # Mejoras acta Departamento Jurídico 02.10.2026 (M1, M2 y M3)
+    _migrate_add_column_if_missing("document_bundles", "sgf_id", "VARCHAR2(50)")
+    _migrate_add_column_if_missing("document_bundles", "carpeta_url", "VARCHAR2(1000)")
+    _migrate_add_column_if_missing("draft_submissions", "carpeta_url", "VARCHAR2(1000)")
+    _migrate_add_column_if_missing("draft_submissions", "antecedentes_confirmados", "NUMBER(1) DEFAULT 0")
 
     def _migrate_drop_category_unique_index() -> None:
         """Drop unique index on categories.name if it exists (allows subcategory name duplicates)."""
@@ -62,6 +67,24 @@ if engine.dialect.name == "oracle":
                 break
 
     _migrate_drop_category_unique_index()
+
+if engine.dialect.name == "sqlite":
+    # En ambiente local (SQLite) una base local.db ya existente no recibe las
+    # columnas nuevas mediante create_all; se agregan aquí si faltan.
+    def _sqlite_add_column_if_missing(table: str, column: str, ddl_type: str) -> None:
+        inspector = sa_inspect(engine)
+        if table not in inspector.get_table_names():
+            return
+        existing = [c["name"].lower() for c in inspector.get_columns(table)]
+        if column.lower() not in existing:
+            with engine.connect() as conn:
+                conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl_type}"))
+                conn.commit()
+
+    _sqlite_add_column_if_missing("document_bundles", "sgf_id", "VARCHAR(50) DEFAULT ''")
+    _sqlite_add_column_if_missing("document_bundles", "carpeta_url", "VARCHAR(1000) DEFAULT ''")
+    _sqlite_add_column_if_missing("draft_submissions", "carpeta_url", "VARCHAR(1000) DEFAULT ''")
+    _sqlite_add_column_if_missing("draft_submissions", "antecedentes_confirmados", "SMALLINT DEFAULT 0")
 
 # Ensure tabla_tribunales fields are not required
 with engine.connect() as _conn:
@@ -85,7 +108,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Sistema de Generación Automatizada de Contratos",
     description="SGAC - Generador de contratos - Poder Judicial de Chile",
-    version="2.0.0",
+    version="2.1.0",
 )
 
 app.state.limiter = limiter

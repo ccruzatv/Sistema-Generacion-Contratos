@@ -10,6 +10,7 @@ import {
   getPreviewPdfUrl,
   getAuthHeaderForDownload,
   getDocumentEvents,
+  getValidadorDownloadUrl,
 } from "../services/api";
 
 export default function AdminReviews() {
@@ -330,6 +331,43 @@ export default function AdminReviews() {
                       </div>
                       <div className="text-xs text-[#112d86]/40 mt-0.5">
                         {r.document_type === "base" ? "Base" : "Cronograma"}
+                      </div>
+                      {/* Antecedentes del contrato: mejoras M1 a M4 */}
+                      <div className="mt-1.5 space-y-1" onClick={(e) => e.stopPropagation()}>
+                        <div className="text-[10px] text-[#112d86]/60">
+                          ID SGF: {r.sgf_id ? <span className="font-semibold text-[#112d86]">{r.sgf_id}</span> : <span className="text-[#c8a84e]">sin registrar</span>}
+                        </div>
+                        {r.carpeta_url ? (
+                          <a
+                            href={r.carpeta_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block text-[10px] font-semibold text-[#112d86] underline"
+                          >
+                            Carpeta de antecedentes
+                          </a>
+                        ) : (
+                          <div className="text-[10px] text-[#c8a84e]">Sin carpeta de antecedentes</div>
+                        )}
+                        {r.antecedentes_confirmados && (
+                          <div className="text-[10px] text-green-700">Antecedentes declarados por el solicitante</div>
+                        )}
+                        {r.validadores && r.validadores.length > 0 && (
+                          <div className="bg-amber-50 border border-amber-200 rounded p-1.5 max-w-xs">
+                            <p className="text-[10px] font-semibold text-amber-800">Modificado con documento validador:</p>
+                            {r.validadores.map((v) => (
+                              <div key={v.id} className="text-[10px] text-amber-900 mt-0.5">
+                                <button
+                                  onClick={() => handleDownload(getValidadorDownloadUrl(v.id), v.filename)}
+                                  className="underline font-medium"
+                                >
+                                  {v.filename}
+                                </button>
+                                {v.motivo && <span>: {v.motivo}</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="py-3 px-4">

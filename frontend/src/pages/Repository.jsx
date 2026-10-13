@@ -9,7 +9,6 @@ import {
   getRepositoryDocxUrl,
   getRepositoryPdfUrl,
   getAuthHeaderForDownload,
-  submitDraft,
   getMySubmissions,
   getDocumentFields,
   getDocumentEvents,
@@ -57,17 +56,6 @@ export default function Repository() {
   function getSubmissionStatus(docId) {
     const sub = submissions.find((s) => s.document_id === docId);
     return sub || null;
-  }
-
-  async function handleSubmitDraft(docId) {
-    if (!await confirm("¿Enviar este documento como borrador para revisión de jefatura?", { confirmLabel: "Enviar", title: "Enviar borrador" })) return;
-    try {
-      await submitDraft(docId);
-      toast("Borrador enviado exitosamente para revisión.", "success");
-      loadDocuments();
-    } catch (err) {
-      toast("Error: " + err.message, "error");
-    }
   }
 
   async function handleDownload(url, filename) {
@@ -377,6 +365,7 @@ export default function Repository() {
                       ev.action === "rechazado" ? "bg-red-500" :
                       ev.action === "corregido" ? "bg-violet-500" :
                       ev.action === "resubido" ? "bg-purple-400" :
+                      ev.action === "modificado" ? "bg-amber-500" :
                       "bg-gray-400"
                     }`} />
                     <div className="min-w-0">

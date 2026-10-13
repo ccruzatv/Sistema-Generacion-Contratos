@@ -12,6 +12,7 @@ from ..database import get_db
 from ..models import User, DocumentBundle, BundleItem, Template, Category, UserDocument
 from ..services.auth import get_current_user
 from ..services.document_generator import GENERATED_DIR, convert_to_pdf
+from ..services.antecedentes import normalize_sgf_id, normalize_carpeta_url
 
 router = APIRouter(prefix="/api/bundles", tags=["bundles"])
 
@@ -40,6 +41,13 @@ class CreateBundleRequest(BaseModel):
     category_id: int
     jurisdiccion: str = ""
     nombre_licitacion: str = ""
+    sgf_id: str = ""
+    carpeta_url: str = ""
+
+
+class UpdateAntecedentesRequest(BaseModel):
+    sgf_id: str = ""
+    carpeta_url: str = ""
 
 
 class LinkItemRequest(BaseModel):
@@ -63,6 +71,9 @@ def create_bundle(
     if not bidding_type:
         raise HTTPException(status_code=404, detail="Tipo de contrato no encontrado")
 
+    sgf_id = normalize_sgf_id(request.sgf_id)
+    carpeta_url = normalize_carpeta_url(request.carpeta_url)
+
     last = (
         db.query(DocumentBundle)
         .filter(DocumentBundle.user_id == user.id)
@@ -78,6 +89,8 @@ def create_bundle(
         category_name=bidding_type.name,
         jurisdiccion=request.jurisdiccion,
         nombre_licitacion=request.nombre_licitacion,
+        sgf_id=sgf_id,
+        carpeta_url=carpeta_url,
     )
     db.add(bundle)
     db.flush()
@@ -153,6 +166,8 @@ def list_bundles(
             "category_name": b.category_name,
             "jurisdiccion": b.jurisdiccion,
             "nombre_licitacion": b.nombre_licitacion,
+            "sgf_id": b.sgf_id or "",
+            "carpeta_url": b.carpeta_url or "",
             "total_items": total,
             "completed_items": completed,
             "created_at": b.created_at.isoformat(),
@@ -210,8 +225,38 @@ def get_bundle(
         "category_name": bundle.category_name,
         "jurisdiccion": bundle.jurisdiccion,
         "nombre_licitacion": bundle.nombre_licitacion,
+        "sgf_id": bundle.sgf_id or "",
+        "carpeta_url": bundle.carpeta_url or "",
         "created_at": bundle.created_at.isoformat(),
         "items": items,
+    }
+
+
+@router.put("/{bundle_id}/antecedentes")
+def update_bundle_antecedentes(
+    bundle_id: int,
+    request: UpdateAntecedentesRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Registra o actualiza el ID de SGF y el enlace a la carpeta virtual de
+    antecedentes del expediente (mejoras M1 y M2)."""
+    bundle = (
+        db.query(DocumentBundle)
+        .filter(DocumentBundle.id == bundle_id, DocumentBundle.user_id == user.id)
+        .first()
+    )
+    if not bundle:
+        raise HTTPException(status_code=404, detail="Expediente no encontrado")
+
+    bundle.sgf_id = normalize_sgf_id(request.sgf_id)
+    bundle.carpeta_url = normalize_carpeta_url(request.carpeta_url)
+    db.commit()
+
+    return {
+        "message": "Antecedentes del expediente actualizados",
+        "sgf_id": bundle.sgf_id,
+        "carpeta_url": bundle.carpeta_url,
     }
 
 
@@ -273,6 +318,20 @@ def link_bundle_item(
     ).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Documento no encontrado")
+
+    # Un contrato pendiente de revisión solo puede modificarse con documento
+    # validador (mejora M4); no se permite reemplazarlo por otro documento.
+    current = item.document
+    if (
+        current is not None
+        and current.id != doc.id
+        and current.latest_submission is not None
+        and current.latest_submission.status == "pendiente"
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="El documento de este ítem está pendiente de revisión; para modificarlo use la opción con documento validador",
+        )
 
     item.document_id = request.document_id
     item.is_completed = True
