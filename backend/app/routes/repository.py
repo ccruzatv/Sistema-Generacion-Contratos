@@ -22,7 +22,7 @@ def _safe_file_path(filename: str) -> str:
 
 
 ROLE_LABELS = {
-    "operativo": "Unidad Requirente",
+    "operativo": "Abogado",
     "admin": "Administrador Jurídico",
     "superadmin": "Superadministrador",
 }
