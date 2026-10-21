@@ -16,14 +16,14 @@ import AdminReviews from "./pages/AdminReviews";
 import Repository from "./pages/Repository";
 
 const ROLE_LABELS = {
-  operativo: "Unidad Requirente",
+  operativo: "Abogado",
   admin: "Administrador Jurídico",
   superadmin: "Superadministrador",
 };
 
 const FAQS = {
   operativo: {
-    label: "Unidad Requirente",
+    label: "Abogado",
     items: [
       { q: "¿Por qué no puedo reenviar el documento después de enviarlo?", a: "El botón Enviar se bloquea al enviar el borrador. Debe esperar que el Administrador lo rechace con comentarios antes de poder corregir y reenviar." },
       { q: "¿Los documentos tienen marca de agua hasta que sean aprobados?", a: "Sí, la marca \"EN REVISIÓN – PENDIENTE DE VALIDACIÓN\" aparece en todos los borradores. Al aprobar, la versión final se genera sin la marca anterior y con pie de validación que incluye el nombre del validador y la fecha." },
@@ -51,7 +51,7 @@ const FAQS = {
   },
 };
 const HELP_MANUALS = [
-  { label: "Manual Unidad Requirente", file: "Manual_Unidad_Requirente_revCCV.pdf" },
+  { label: "Manual Abogado", file: "Manual_Unidad_Requirente_revCCV.pdf" },
   { label: "Manual Administrador", file: "Manual_Administrador_revCCV.pdf" },
   { label: "Manual Superadministrador", file: "Manual_Superadministrador.pdf" },
 ];

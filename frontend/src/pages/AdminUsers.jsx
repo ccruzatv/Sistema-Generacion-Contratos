@@ -6,7 +6,7 @@ import { useConfirm } from "../components/ConfirmModal";
 import { JURISDICCIONES } from "../constants/jurisdicciones";
 
 const ROLE_LABELS = {
-  operativo: "Unidad Requirente",
+  operativo: "Abogado",
   admin: "Administrador Jurídico",
   superadmin: "Superadministrador",
 };
@@ -223,7 +223,7 @@ export default function AdminUsers() {
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="w-full border border-[#112d86]/20 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#112d86]/30"
               >
-                <option value="operativo">Unidad Requirente</option>
+                <option value="operativo">Abogado</option>
                 <option value="admin">Administrador Jurídico</option>
                 <option value="superadmin">Superadministrador</option>
               </select>
@@ -311,7 +311,7 @@ export default function AdminUsers() {
                         onChange={(e) => handleChangeRole(u, e.target.value)}
                         className="border border-[#112d86]/20 rounded-lg px-2 py-1 text-xs"
                       >
-                        <option value="operativo">Unidad Requirente</option>
+                        <option value="operativo">Abogado</option>
                         <option value="admin">Administrador Jurídico</option>
                         <option value="superadmin">Superadministrador</option>
                       </select>
