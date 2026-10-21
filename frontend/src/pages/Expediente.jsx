@@ -29,7 +29,6 @@ export default function Expediente() {
   const [error, setError] = useState("");
   const [downloadingAll, setDownloadingAll] = useState(false);
   const [downloadingAllDocx, setDownloadingAllDocx] = useState(false);
-  const [submittingId, setSubmittingId] = useState(null);
   const [generatingId, setGeneratingId] = useState(null);
   const [search, setSearch] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -514,7 +513,6 @@ export default function Expediente() {
                       {isOperativo && !item.submission_status && (
                         <button
                           onClick={() => handleSubmitDraft(item.document_id)}
-                          disabled={submittingId === item.document_id}
                           className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all disabled:opacity-50"
                           style={{ background: "linear-gradient(135deg, #16a34a, #15803d)" }}
                           title="Enviar para validación"
@@ -706,7 +704,7 @@ export default function Expediente() {
                           </button>
                         )}
                         {isOperativo && !item.submission_status && (
-                          <button onClick={() => handleSubmitDraft(item.document_id)} disabled={submittingId === item.document_id} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #16a34a, #15803d)" }} title="Enviar para validación">
+                          <button onClick={() => handleSubmitDraft(item.document_id)} className="inline-flex items-center gap-1 text-white py-1.5 px-2.5 rounded-lg text-xs font-semibold hover:shadow-md transition-all disabled:opacity-50" style={{ background: "linear-gradient(135deg, #16a34a, #15803d)" }} title="Enviar para validación">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                             Enviar
                           </button>
