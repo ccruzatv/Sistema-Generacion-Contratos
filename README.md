@@ -15,7 +15,7 @@
 
 Nuevos endpoints: `PUT /api/bundles/{id}/antecedentes`, `GET /api/drafts/submit-context/{doc_id}`,
 `POST /api/documents/modify-pending/{doc_id}` y `GET /api/documents/validadores/{id}`.
-Las columnas nuevas se agregan automáticamente al iniciar el backend (Oracle y SQLite local).
+Las columnas nuevas se agregan automáticamente al iniciar el backend contra Oracle.
 
 Aplicación web para generar y gestionar documentos de contrato (Word/PDF) a partir de plantillas con campos dinámicos. Incluye flujo de validación de borradores, expedientes de contrato, descarga de documentos aprobados y trazabilidad completa.
 
